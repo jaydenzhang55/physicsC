@@ -21,13 +21,14 @@ airTemperature = 37
 velocity = 0
 dragCoeff = 0.5
 crossSectArea = 2800
+airPressure = 101325
 mass = 3000
 gravity = 9.80665
 fluidVol = 2800
 altitude = 0
 heightAboveSeaLvl = 0
-material = 'nylon'
-air = 'air'
+material = 'Nylon'
+air = 'Air'
 wind = 0
 
 homePlanet = "Earth"
@@ -45,10 +46,6 @@ def setMass(event):
 def setfluidDens():
     fluidDens = 45
 
-def numPassengers(s):
-    mass = s.value
-    passengerSlider.text = 'Number of Passengers =' + '{:1.0f}'.format(passengerSlider.value) + "\n\n"
-
 def setPlanet(p):
     if p.checked:
         homePlanet = p.plan
@@ -59,11 +56,58 @@ def setPlanet(p):
         if i != p.i:
             buttons[i].checked = False
 
-def setDafaults(x):
+def setDefaults(x):
     if x == "Earth":
         backgroundPic = 45
     elif x == "Saturn":
         backgroundPic = 45
+        fluidDens = 00
+        airTemperature = 00
+        dragCoeff = 0.515 #based on Atlas rocket https://web.archive.org/web/20170313142729/http://www.braeunig.us/apollo/saturnV.htm
+        planetMass = 5.684*10^26
+        fluidVol = 00
+        air = 'air'
+    elif x == "Venus":
+        backgroundPic = 45
+        fluidDens = 00
+        airTemperature = 00
+        dragCoeff = 0.515
+        planetMass = 5.684*10^26
+        fluidVol = 00
+        air = 'air'
+    elif x == "Mars":
+        backgroundPic = 45
+        fluidDens = 00
+        airTemperature = 00
+        dragCoeff = 0.515
+        planetMass = 5.684*10^26
+        fluidVol = 00
+        air = 'air'
+    elif x == "Jupiter":
+        backgroundPic = 45
+        fluidDens = 00
+        airTemperature = 00
+        dragCoeff = 0.515
+        planetMass = 5.684*10^26
+        fluidVol = 00
+        air = 'air'
+    elif x == "Neptune":
+        backgroundPic = 45
+        fluidDens = 00
+        airTemperature = 00
+        dragCoeff = 0.515
+        planetMass = 5.684*10^26
+        fluidVol = 00
+        air = 'air'
+    elif x == "Uranus":
+        backgroundPic = 45
+        fluidDens = 00
+        airTemperature = 00
+        dragCoeff = 0.515
+        planetMass = 5.684*10^26
+        fluidVol = 00
+        air = 'air'
+        
 
 def changeMaterial(evt):
     material = evt.id
@@ -83,49 +127,60 @@ buttons = [saturnRadio, earthRadio, venusRadio, jupiterRadio, neptuneRadio, uran
 
 scene.append_to_caption('<div id="right">')
 scene.append_to_caption('<div style="margin-bottom: 15px;">')
-passengerSlider = slider(bind = numPassengers, min = 0, max = 10, value = 0)
-passengerSliderCaption = wtext(text = 'Number of Passengers =' + ' {:1.0f}'.format(passengerSlider.value)+"\n\n")
+
+
+passengerSlider = slider(min = 0, max = 10, value = 0, bind = numPassengers, step = 1)
 scene.append_to_caption('</div>')
 
-def balloonSize(s):
-    crossSectArea = s.value
-    sizeOfBalloonSlider.text = 'Cross Sectional Area of Balloon (m^2) =' + ' {:1.0f}'.format(sizeOfBalloonSlider.value) + "\n\n"
+def numPassengers(s):
+    mass = s.value
+    numPassengersValueDisplay.text = str(passengerSlider.value)
+numPassengersTextDisplay = wtext(text = 'Number of Passengers = ')
+numPassengersValueDisplay = wtext(text = str(passengerSlider.value))
 
 scene.append_to_caption('<div id="right">')
 scene.append_to_caption('<div style="margin-bottom: 15px;">')
 sizeOfBalloonSlider = slider(bind = balloonSize, min = 150, max = 1000, value = 222)
-sizeOfBalloonSliderCaption = wtext(text = 'Cross Sectional Area of Balloon (m^2) =' + ' {:1.0f}'.format(sizeOfBalloonSlider.value)+"\n\n")
 scene.append_to_caption('</div>')
 
-def changeTemp(s):
-    airTemperature += s.value
-    tempOfFlameSlider.text = 'Temperature of Flame (°C) =' + '{:1.2f}'.format(tempOfFlameSlider.value)+"\n\n"
+def balloonSize(s):
+    crossSectArea = s.value
+    balloonSizeValueDisplay.text = str(sizeOfBalloonSlider.value)
+balloonSizeTextDisplay = wtext(text = 'Cross Sectional Area of Balloon (m^2) = ')
+balloonSizeValueDisplay = wtext(text = str(sizeOfBalloonSlider.value))
     
 scene.append_to_caption('<div id="right">')
 scene.append_to_caption('<div style="margin-bottom: 15px;">')
 tempOfFlameSlider = slider(bind = changeTemp, min = 0, max = 700, value = 350)
-tempOfFlameSliderCaption = wtext(text = 'Temperature of Flame (°C) =' + ' {:1.2f}'.format(tempOfFlameSlider.value)+"\n\n")
 scene.append_to_caption('</div>')
 
-def changeWind(s):
-    wind = s.value
-    windSlider.text = 'Wind Speed (km/h) =' + '{:1.2f}'.format(windSlider.value)+"\n\n"
+def changeTemp(s):
+    airTemperature = s.value
+    tempOfFlameValueDisplay.text = str(tempOfFlameSlider.value)
+tempOfFlameTextDisplay = wtext(text = 'Temperature of Flame (°C) = ')
+tempOfFlameValueDisplay = wtext(text = str(tempOfFlameSlider.value))
 
 scene.append_to_caption('<div id="right">')
 scene.append_to_caption('<div style="margin-bottom: 15px;">')
 windSlider = slider(bind = changeWind, min = 0, max = 1000, value = 0)
-windSliderCaption = wtext(text = 'Wind Speed (km/h) =' + ' {:1.2f}'.format(windSlider.value)+"\n\n")
 scene.append_to_caption('</div>')
 
-choicelist = ['nylon', 'polyester',
-             'wicker', 'stainless steel', 'copper', 'aluminum', 
-             'plastic', 'leather', 'suede']
+def changeWind(s):
+    wind = s.value
+    windValueDisplay.text = str(windSlider.value)
+windTextDisplay = wtext(text = 'Wind Speed (km/h) = ')
+windValueDisplay = wtext(text = str(windSlider.value))
+scene.append_to_caption('<div></div>')
+
+choicelist = ['Nylon', 'Polyester',
+             'Wicker', 'Stainless steel', 'Copper', 'Aluminum', 
+             'Plastic', 'Leather', 'Suede']
 
 menu(choices=choicelist, bind=changeMaterial)
 windCaption = wtext(text = ' Material: ' + material + ' ')
+scene.append_to_caption('<div></div>')
 
-
-airList = ['air', 'hydrogen', 'nitrogen', 'helium', 'oxygen', 'tungsten hexafluoride']
+airList = ['Air', 'Hydrogen', 'Nitrogen', 'Helium', 'Oxygen', 'Tungsten hexafluoride']
 
 menu(choices=airList, bind=changeAir)
 airCaption = wtext(text = ' Air: ' + air + " ")
@@ -149,5 +204,3 @@ for i in range(len(time_points)):
     speedCurve.plot(time_points[i], speed_values[i])
     positionCurve.plot(time_points[i], position_values[i])
     forceCurve.plot(time_points[i], force_values[i])
-
-
