@@ -12,7 +12,7 @@ scene.append_to_caption("""
 scene.container = "left"
 scene.append_to_caption('<h3 style="margin-top:20px;">Balloon Parameters</h3>')
 
-scene.userzoom = False
+scene.userzoom = True
 scene.userspin = False
 scene.userpan = False
 
