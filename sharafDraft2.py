@@ -16,11 +16,12 @@ scene.userzoom = True
 scene.userspin = False
 scene.userpan = False
 
+
 fluidDens = 1.225
 airTemperature = 37
 velocity = 0
 dragCoeff = 0.5
-crossSectArea = 2800
+crossSectArea = 2800 #A=pi*r^2 through center of sphere
 airPressure = 101325
 mass = 3000
 gravity = 9.80665
@@ -30,14 +31,14 @@ heightAboveSeaLvl = 0
 material = 'Nylon'
 air = 'Air'
 wind = 0
-
 homePlanet = "Earth"
+
+
+balloon = sphere(pos = vec(0, altitude, 0), radius = sqrt(crossSectArea/pi), color = color.blue)
 
 # variables: fluid density, velocity, drag coefficient, cross sectional area, mass, gravity, fluid volume, altitude
 
-dragForce = 0.5 * (fluidDens) * velocity * velocity * dragCoeff * crossSectArea
-gravForce = mass * gravity
-buoForce = - (fluidDens) * gravity * fluidVol
+
 
 def setMass(event):
     if event.id is 'x':
@@ -204,3 +205,18 @@ for i in range(len(time_points)):
     speedCurve.plot(time_points[i], speed_values[i])
     positionCurve.plot(time_points[i], position_values[i])
     forceCurve.plot(time_points[i], force_values[i])
+
+
+totalMass = mass + passengerSlider.value
+dragForce = 0.5 * (fluidDens) * velocity * velocity * dragCoeff * crossSectArea * (velocity/abs(velocity))
+gravForce = totalMass * gravity
+buoForce = (fluidDens) * gravity * fluidVol    
+totalForce = buoForce - gravForce + dragForce
+
+acceleration = totalForce/totalMass
+
+buttonOn = True
+
+while(buttonOn):
+    time += rate(100)
+    velocity = velocity + (acceleration * time)
