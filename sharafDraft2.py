@@ -23,8 +23,9 @@ heightAboveSeaLvl = 0
 material = 'Nylon'
 air = 'Air'
 wind = 0
-
 homePlanet = "Earth"
+
+balloon = sphere(pos = vec(0, altitude, 0), radius = sqrt(crossSectArea/pi), color = color.blue)
 
 # variables: fluid density, velocity, drag coefficient, cross sectional area, mass, gravity, fluid volume, altitude
 
