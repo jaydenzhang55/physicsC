@@ -38,8 +38,6 @@ balloon = sphere(pos = vec(0, altitude, 0), radius = sqrt(crossSectArea/pi), col
 
 # variables: fluid density, velocity, drag coefficient, cross sectional area, mass, gravity, fluid volume, altitude
 
-
-
 def setMass(event):
     if event.id is 'x':
         mass = event.value
