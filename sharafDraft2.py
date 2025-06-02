@@ -5,7 +5,7 @@ scene = canvas(width=600, height=600)
 scene.container = "left"
 scene.append_to_caption('<h3 style="margin-top:20px;">Balloon Parameters</h3>')
 
-scene.userzoom = False
+scene.userzoom = True
 scene.userspin = False
 scene.userpan = False
 
@@ -27,10 +27,6 @@ wind = 0
 homePlanet = "Earth"
 
 # variables: fluid density, velocity, drag coefficient, cross sectional area, mass, gravity, fluid volume, altitude
-
-dragForce = 0.5 * (fluidDens) * velocity * velocity * dragCoeff * crossSectArea
-gravForce = mass * gravity
-buoForce = - (fluidDens) * gravity * fluidVol
 
 def setMass(event):
     if event.id is 'x':
