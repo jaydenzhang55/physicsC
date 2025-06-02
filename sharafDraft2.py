@@ -216,6 +216,7 @@ startButton = button(text = "Run", pos = scene.title_anchor, bind = start)
 
 time = 0; dt=3600
 
-while(running = True):
+while(running):
     rate(1000)
     velocity = velocity + (acceleration * time)
+    time += dt
