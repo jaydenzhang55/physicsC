@@ -2,26 +2,18 @@ Web VPython 3.2
 
 scene = canvas(width=600, height=600)
 
-scene.append_to_caption("""
-<div style="display: flex; flex-direction: row;">
-    <div id="left" style="margin-right: 20px;"></div>
-    <div id="right" style="display: flex; flex-direction: column; max-width: 300px;"></div>
-</div>
-""")
-
 scene.container = "left"
 scene.append_to_caption('<h3 style="margin-top:20px;">Balloon Parameters</h3>')
 
-scene.userzoom = True
+scene.userzoom = False
 scene.userspin = False
 scene.userpan = False
-
 
 fluidDens = 1.225
 airTemperature = 37
 velocity = 0
 dragCoeff = 0.5
-crossSectArea = 2800 #A=pi*r^2 through center of sphere
+crossSectArea = 2800
 airPressure = 101325
 mass = 3000
 gravity = 9.80665
@@ -31,14 +23,14 @@ heightAboveSeaLvl = 0
 material = 'Nylon'
 air = 'Air'
 wind = 0
+
 homePlanet = "Earth"
-
-
-balloon = sphere(pos = vec(0, altitude, 0), radius = sqrt(crossSectArea/pi), color = color.blue)
 
 # variables: fluid density, velocity, drag coefficient, cross sectional area, mass, gravity, fluid volume, altitude
 
-
+dragForce = 0.5 * (fluidDens) * velocity * velocity * dragCoeff * crossSectArea
+gravForce = mass * gravity
+buoForce = - (fluidDens) * gravity * fluidVol
 
 def setMass(event):
     if event.id is 'x':
@@ -115,6 +107,25 @@ def changeMaterial(evt):
 
 def changeAir(evt):
     air = evt.id
+    
+speedVsTime = graph(title = 'Speed vs Time', xtitle = 'Time (s)', ytitle = 'Speed (m/s)', xmin = 0, ymin = 0, align="right", width="250", height="2")
+positionVsTime = graph(title = 'Position vs Time', xtitle = 'Time (s)', ytitle = 'Position', xmin = 0, ymin = 0, align="right", width="250", height="2")
+forceVsTime = graph(title = 'Force vs Time', xtitle = 'Time (s)', ytitle = 'Force', xmin = 0, ymin = 0, align="right", width="250", height="2")
+
+speedCurve = gcurve(graph=speedVsTime, color=color.red)
+positionCurve = gcurve(graph=positionVsTime, color=color.green)
+forceCurve = gcurve(graph=forceVsTime, color=color.blue)
+
+time_points = [0, 1, 2, 3, 4, 5]
+speed_values = [0, 5, 10, 15, 20, 25]
+position_values = [0, 10, 25, 45, 70, 100]
+force_values = [300, 500, 400, 450, 430, 420]
+
+for i in range(len(time_points)):
+    rate(5)
+    speedCurve.plot(time_points[i], speed_values[i])
+    positionCurve.plot(time_points[i], position_values[i])
+    forceCurve.plot(time_points[i], force_values[i])
 
 venusRadio = radio(bind=setPlanet, text = "Venus", i = 0, plan = "Venus")
 marsRadio = radio(bind=setPlanet, text = "Mars", i = 1, plan = "Mars")
@@ -187,36 +198,3 @@ menu(choices=airList, bind=changeAir)
 airCaption = wtext(text = ' Air: ' + air + " ")
 
 
-speedVsTime = graph(title = 'Speed vs Time', xtitle = 'Time (s)', ytitle = 'Speed (m/s)', xmin = 0, ymin = 0 )
-positionVsTime = graph(title = 'Position vs Time', xtitle = 'Time (s)', ytitle = 'Position', xmin = 0, ymin = 0)
-forceVsTime = graph(title = 'Force vs Time', xtitle = 'Time (s)', ytitle = 'Force', xmin = 0, ymin = 0)
-
-speedCurve = gcurve(graph=speedVsTime, color=color.red)
-positionCurve = gcurve(graph=positionVsTime, color=color.green)
-forceCurve = gcurve(graph=forceVsTime, color=color.blue)
-
-time_points = [0, 1, 2, 3, 4, 5]
-speed_values = [0, 5, 10, 15, 20, 25]
-position_values = [0, 10, 25, 45, 70, 100]
-force_values = [300, 500, 400, 450, 430, 420]
-
-for i in range(len(time_points)):
-    rate(5)
-    speedCurve.plot(time_points[i], speed_values[i])
-    positionCurve.plot(time_points[i], position_values[i])
-    forceCurve.plot(time_points[i], force_values[i])
-
-
-totalMass = mass + passengerSlider.value
-dragForce = 0.5 * (fluidDens) * velocity * velocity * dragCoeff * crossSectArea * (velocity/abs(velocity))
-gravForce = totalMass * gravity
-buoForce = (fluidDens) * gravity * fluidVol    
-totalForce = buoForce - gravForce + dragForce
-
-acceleration = totalForce/totalMass
-
-buttonOn = True
-
-while(buttonOn):
-    time += rate(100)
-    velocity = velocity + (acceleration * time)
