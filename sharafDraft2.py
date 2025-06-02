@@ -194,3 +194,28 @@ menu(choices=airList, bind=changeAir)
 airCaption = wtext(text = ' Air: ' + air + " ")
 
 
+totalMass = mass + passengerSlider.value
+dragForce = 0.5 * (fluidDens) * velocity * velocity * dragCoeff * crossSectArea * (velocity/abs(velocity))
+gravForce = totalMass * gravity
+buoForce = (fluidDens) * gravity * fluidVol    
+totalForce = buoForce - gravForce + dragForce
+
+acceleration = totalForce/totalMass
+
+running = False
+
+def start(b):
+    global running
+    running = not running
+    if running: 
+        b.text = "Pause"
+    else: 
+        b.text = "Run"
+
+startButton = button(text = "Run", pos = scene.title_anchor, bind = start)
+
+time = 0; dt=3600
+
+while(running = True):
+    rate(1000)
+    velocity = velocity + (acceleration * time)
