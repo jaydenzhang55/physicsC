@@ -5,15 +5,16 @@ scene = canvas(width=600, height=600)
 scene.container = "left"
 scene.append_to_caption('<h3 style="margin-top:20px;">Balloon Parameters</h3>')
 
-scene.userzoom = True
+scene.userzoom = False
 scene.userspin = False
 scene.userpan = False
+
 
 fluidDens = 1.225
 airTemperature = 37
 velocity = 0
 dragCoeff = 0.5
-crossSectArea = 2800
+crossSectArea = 2800 #A=pi*r^2 through center of sphere
 airPressure = 101325
 mass = 3000
 gravity = 9.80665
@@ -25,9 +26,11 @@ air = 'Air'
 wind = 0
 homePlanet = "Earth"
 
-balloon = sphere(pos = vec(0, altitude, 0), radius = sqrt(crossSectArea/pi), color = color.blue)
+
 
 # variables: fluid density, velocity, drag coefficient, cross sectional area, mass, gravity, fluid volume, altitude
+
+
 
 def setMass(event):
     if event.id is 'x':
@@ -99,11 +102,11 @@ def setDefaults(x):
         air = 'air'
         
 
-def changeMaterial(evt):
-    material = evt.id
+
 
 def changeAir(evt):
     air = evt.id
+
     
 speedVsTime = graph(title = 'Speed vs Time', xtitle = 'Time (s)', ytitle = 'Speed (m/s)', xmin = 0, ymin = 0, align="right", width="250", height="2")
 positionVsTime = graph(title = 'Position vs Time', xtitle = 'Time (s)', ytitle = 'Position', xmin = 0, ymin = 0, align="right", width="250", height="2")
@@ -171,6 +174,7 @@ tempOfFlameValueDisplay = wtext(text = str(tempOfFlameSlider.value))
 
 scene.append_to_caption('<div id="right">')
 scene.append_to_caption('<div style="margin-bottom: 15px;">')
+
 windSlider = slider(bind = changeWind, min = 0, max = 1000, value = 0)
 scene.append_to_caption('</div>')
 
@@ -181,19 +185,48 @@ windTextDisplay = wtext(text = 'Wind Speed (km/h) = ')
 windValueDisplay = wtext(text = str(windSlider.value))
 scene.append_to_caption('<div></div>')
 
-choicelist = ['Nylon', 'Polyester',
+materialList = ['Nylon', 'Polyester',
              'Wicker', 'Stainless steel', 'Copper', 'Aluminum', 
              'Plastic', 'Leather', 'Suede']
+balloon = sphere(pos = vec(0, altitude, 0), opacity=1, radius = sqrt(crossSectArea/pi), color = color.blue, texture="https://i.imgur.com/YwqXpCA.jpeg")
 
-menu(choices=choicelist, bind=changeMaterial)
-windCaption = wtext(text = ' Material: ' + material + ' ')
+def changeMaterial(evt):
+    if evt.index < 1:
+        balloon.texture = "https://i.imgur.com/YwqXpCA.jpeg"
+    elif evt.index is 1:
+        balloon.color = color.yellow
+        balloon.texture = "https://i.imgur.com/aHf7shx.png"
+    elif evt.index is 2:
+        balloon.color = color.red
+        balloon.texture = "https://i.imgur.com/z1NDKU1.png"
+    elif evt.index is 3: 
+        balloon.color = color.green
+        balloon.texture = "https://i.imgur.com/z1NDKU1.png"
+    elif evt.index is 4: 
+        #balloon.color = color.black
+        balloon.texture="https://i.imgur.com/FkrZo0R.png"
+    elif evt.index is 5:
+        balloon.texture="https://i.imgur.com/zEuDPcK.jpeg"
+    elif evt.index is 6:
+        balloon.texture="https://i.imgur.com/puph7Hw.jpeg"
+    elif evt.index is 7:
+        balloon.texture="https://i.imgur.com/NqIjoHj.jpeg"
+    elif evt.index is 8:
+        balloon.texture="https://i.imgur.com/3N4NFBM.jpeg"
+
+
+menu(choices = materialList, bind = changeMaterial)
+materialCaption = wtext(text = ' Material: ' + material + ' ')
 scene.append_to_caption('<div></div>')
+
+
+    
+
 
 airList = ['Air', 'Hydrogen', 'Nitrogen', 'Helium', 'Oxygen', 'Tungsten hexafluoride']
 
 menu(choices=airList, bind=changeAir)
 airCaption = wtext(text = ' Air: ' + air + " ")
-
 
 totalMass = mass + passengerSlider.value
 dragForce = 0.5 * (fluidDens) * velocity * velocity * dragCoeff * crossSectArea * (velocity/abs(velocity))
@@ -206,12 +239,12 @@ acceleration = totalForce/totalMass
 running = False
 
 def start(b):
-    global running
-    running = not running
-    if running: 
+    if b.text == "Run":
         b.text = "Pause"
+        global running = True
     else: 
-        b.text = "Run"
+        b.text == "Run"
+        global running = False
 
 startButton = button(text = "Run", pos = scene.title_anchor, bind = start)
 
@@ -220,4 +253,4 @@ time = 0; dt=3600
 while(running):
     rate(1000)
     velocity = velocity + (acceleration * time)
-    time += dt
+    
