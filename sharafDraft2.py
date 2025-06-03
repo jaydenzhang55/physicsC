@@ -259,3 +259,8 @@ while(running):
     vy = vy + ay * dt 
     vx = vx + ax * dt
     time += dt
+
+
+#//////////////////////////////////////////////////////////    
+    
+backgroundBox = box(pos = vector(0, 0, -100), size = vector(1000, 1000, 0.1), color = color.white, texture = "https://i.imgur.com/wHGxacb.png")
