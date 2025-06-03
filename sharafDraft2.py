@@ -9,12 +9,13 @@ scene.userzoom = False
 scene.userspin = False
 scene.userpan = False
 
-
 fluidDens = 1.225
 airTemperature = 37
-velocity = 0
+vx = 0
+vy = 0
+velocity = sqrt(vx^2 + vy^2)
 dragCoeff = 0.5
-crossSectArea = 2800 #A=pi*r^2 through center of sphere
+crossSectArea = 2800
 airPressure = 101325
 mass = 3000
 gravity = 9.80665
@@ -25,12 +26,10 @@ material = 'Nylon'
 air = 'Air'
 wind = 0
 homePlanet = "Earth"
-
-
+pressureAtSeaLevel = 100
+molarMass = 100
 
 # variables: fluid density, velocity, drag coefficient, cross sectional area, mass, gravity, fluid volume, altitude
-
-
 
 def setMass(event):
     if event.id is 'x':
@@ -101,12 +100,8 @@ def setDefaults(x):
         fluidVol = 00
         air = 'air'
         
-
-
-
 def changeAir(evt):
     air = evt.id
-
     
 speedVsTime = graph(title = 'Speed vs Time', xtitle = 'Time (s)', ytitle = 'Speed (m/s)', xmin = 0, ymin = 0, align="right", width="250", height="2")
 positionVsTime = graph(title = 'Position vs Time', xtitle = 'Time (s)', ytitle = 'Position', xmin = 0, ymin = 0, align="right", width="250", height="2")
@@ -156,8 +151,12 @@ sizeOfBalloonSlider = slider(bind = balloonSize, min = 150, max = 1000, value = 
 scene.append_to_caption('</div>')
 
 def balloonSize(s):
-    crossSectArea = s.value
+    crossSectArea = sizeOfBalloonSlider.value
     balloonSizeValueDisplay.text = str(sizeOfBalloonSlider.value)
+    radius = sqrt(crossSectArea / pi)
+    mass = mass + fluidDens * (radius ^ 3)
+    balloon.scale(radius)
+
 balloonSizeTextDisplay = wtext(text = 'Cross Sectional Area of Balloon (m^2) = ')
 balloonSizeValueDisplay = wtext(text = str(sizeOfBalloonSlider.value))
     
@@ -167,28 +166,65 @@ tempOfFlameSlider = slider(bind = changeTemp, min = 0, max = 700, value = 350)
 scene.append_to_caption('</div>')
 
 def changeTemp(s):
-    airTemperature = s.value
+    airTemperature = tempOfFlameSlider.value
     tempOfFlameValueDisplay.text = str(tempOfFlameSlider.value)
+
 tempOfFlameTextDisplay = wtext(text = 'Temperature of Flame (°C) = ')
 tempOfFlameValueDisplay = wtext(text = str(tempOfFlameSlider.value))
 
 scene.append_to_caption('<div id="right">')
 scene.append_to_caption('<div style="margin-bottom: 15px;">')
-
 windSlider = slider(bind = changeWind, min = 0, max = 1000, value = 0)
 scene.append_to_caption('</div>')
 
 def changeWind(s):
-    wind = s.value
+    wind = windSlider.value
     windValueDisplay.text = str(windSlider.value)
+
 windTextDisplay = wtext(text = 'Wind Speed (km/h) = ')
 windValueDisplay = wtext(text = str(windSlider.value))
 scene.append_to_caption('<div></div>')
 
-materialList = ['Nylon', 'Polyester',
+choicelist = ['Nylon', 'Polyester',
              'Wicker', 'Stainless steel', 'Copper', 'Aluminum', 
              'Plastic', 'Leather', 'Suede']
-balloon = sphere(pos = vec(0, altitude, 0), opacity=1, radius = sqrt(crossSectArea/pi), color = color.blue, texture="https://i.imgur.com/YwqXpCA.jpeg")
+
+menu(choices=choicelist, bind=changeMaterial)
+windCaption = wtext(text = ' Material: ' + material + ' ')
+scene.append_to_caption('<div></div>')
+
+airList = ['Air', 'Hydrogen', 'Nitrogen', 'Helium', 'Oxygen', 'Tungsten hexafluoride']
+
+menu(choices=airList, bind=changeAir)
+airCaption = wtext(text = ' Air: ' + air + " ")
+
+totalMass = mass + passengerSlider.value
+dragForce = 0.5 * (fluidDens) * velocity * velocity * dragCoeff * crossSectArea * (velocity/abs(velocity))
+dragXForce = 0.5 * (fluidDens) * vx * vx * dragCoeff * crossSectArea * (vx/abs(vx))
+dragYForce = 0.5 * (fluidDens) * vy * vy * dragCoeff * crossSectArea * (vy/abs(vy))
+gravForce = totalMass * gravity
+buoForce = (fluidDens) * gravity * fluidVol  
+
+totalXForce = buoForce - gravForce + dragXForce
+totalYForce = buoForce - gravForce + dragYForce
+
+pressure = (pressureAtSeaLevel)*e^((-(molarMass/(6.022*10^(23)))*gravity*heightAboveSeaLvl)/((1.380649) * 10^(-23) * (airTemperature + 273.15)))
+fluidDens = (pressure * molarMass)/(0.0821)(airTemperature + 273.15)
+
+ay = totalYForce / totalMass
+ax = totalXForce / totalMass
+
+running = False
+
+def start(b):
+    running = not running
+    if running: 
+        b.text = "Pause"
+    else: 
+        b.text = "Run"
+
+startButton = button(text = "Run", pos = scene.title_anchor, bind = start)
+balloon = sphere(pos = vec(0, altitude, 0), radius = sqrt(crossSectArea/pi), color = color.blue)
 
 def changeMaterial(evt):
     if evt.index < 1:
@@ -214,43 +250,12 @@ def changeMaterial(evt):
     elif evt.index is 8:
         balloon.texture="https://i.imgur.com/3N4NFBM.jpeg"
 
-
-menu(choices = materialList, bind = changeMaterial)
-materialCaption = wtext(text = ' Material: ' + material + ' ')
-scene.append_to_caption('<div></div>')
-
-
-    
-
-
-airList = ['Air', 'Hydrogen', 'Nitrogen', 'Helium', 'Oxygen', 'Tungsten hexafluoride']
-
-menu(choices=airList, bind=changeAir)
-airCaption = wtext(text = ' Air: ' + air + " ")
-
-totalMass = mass + passengerSlider.value
-dragForce = 0.5 * (fluidDens) * velocity * velocity * dragCoeff * crossSectArea * (velocity/abs(velocity))
-gravForce = totalMass * gravity
-buoForce = (fluidDens) * gravity * fluidVol    
-totalForce = buoForce - gravForce + dragForce
-
-acceleration = totalForce/totalMass
-
-running = False
-
-def start(b):
-    if b.text == "Run":
-        b.text = "Pause"
-        global running = True
-    else: 
-        b.text == "Run"
-        global running = False
-
-startButton = button(text = "Run", pos = scene.title_anchor, bind = start)
-
 time = 0; dt=3600
 
 while(running):
     rate(1000)
-    velocity = velocity + (acceleration * time)
-    
+    if heightAboveSeaLvl < 0:
+        running = False
+    vy = vy + ay * dt 
+    vx = vx + ax * dt
+    time += dt
