@@ -6,8 +6,10 @@ scene.container = "left"
 scene.append_to_caption('<h3 style="margin-top:20px;">Balloon Parameters</h3>')
 
 scene.userzoom = False
-scene.userspin = False
-scene.userpan = False
+scene.userspin = True
+scene.userpan = True
+scene.resizable = False
+scene.autoscale = False
 
 fluidDens = 1.225
 airTemperature = 273.15 #Kelvin at 1 bar
@@ -186,11 +188,11 @@ airList = ['Air', 'Hydrogen', 'Nitrogen', 'Helium', 'Oxygen', 'Tungsten hexafluo
 menu(choices=airList, bind=changeAir)
 airCaption = wtext(text = ' Air: ' + air + " ")
 
-
 running = False
 
 def start(b):
-    running = not running
+    global running
+    running = True
     if running: 
         startButton.text = "Running"
     else: 
@@ -200,22 +202,26 @@ def reset(b):
     global running
     running = False
     startButton.text = "Run"
-
+    
 startButton = button(text = "Run", pos = scene.title_anchor, bind = start)
 resetButton = button(text = "Reset", pos = scene.title_anchor, bind = reset)
 
-balloon = sphere(pos = vec(0, altitude, 0), radius = sqrt(crossSectArea/pi), color = color.blue)
+balloon = sphere(pos = vec(0, altitude - 9, 0), radius = sqrt(crossSectArea/pi) / 50, color = color.blue)
 
 def changeMaterial(evt):
     if evt.index < 1:
         balloon.texture = "https://i.imgur.com/YwqXpCA.jpeg"
     elif evt.index is 1:
+        balloon.color = color.yellow
         balloon.texture = "https://i.imgur.com/aHf7shx.png"
     elif evt.index is 2:
+        balloon.color = color.red
         balloon.texture = "https://i.imgur.com/z1NDKU1.png"
     elif evt.index is 3: 
+        balloon.color = color.green
         balloon.texture = "https://i.imgur.com/z1NDKU1.png"
     elif evt.index is 4: 
+        #balloon.color = color.black
         balloon.texture="https://i.imgur.com/FkrZo0R.png"
     elif evt.index is 5:
         balloon.texture="https://i.imgur.com/zEuDPcK.jpeg"
@@ -226,9 +232,9 @@ def changeMaterial(evt):
     elif evt.index is 8:
         balloon.texture="https://i.imgur.com/3N4NFBM.jpeg"
         
-backgroundBox = box(pos = vector(0, 0, -100), size = vector(1000, 1000, 0.1), color = color.white, texture = "https://i.imgur.com/wHGxacb.png")
+backgroundBox = box(pos = vector(0, 0, 0), size = vector(20, 20, 0.1), color = color.white, texture = "https://i.imgur.com/wHGxacb.png")
 
-time = 0; dt=3600
+time = 0; dt=1
 
 posx = 0
 posy = 0
@@ -236,47 +242,63 @@ posy = 0
 ay = 0
 ax = 0
 
-while(running):
-    rate(1000)
-    if heightAboveSeaLvl < 0:
-        running = False
+while True:
+    rate(1)
+    if running:        
+        if heightAboveSeaLvl < 0:
+            running = False
+            
+        velocity = sqrt(vx^2 + vy^2)
         
-    velocity = sqrt(vx^2 + vy^2)
+        pressure = (pressureAtSeaLevel)*(exp(-(molarMass/(6.022*10^(23)))*gravity*heightAboveSeaLvl))/((1.380649) * 10^(-23) * (airTemperature + 273.15))
+        fluidDens = (pressure * molarMass)/((0.0821)*(airTemperature + 273.15))
+            
+        totalMass = mass + passengerSlider.value
+        dragForce = 0.5 * (fluidDens) * velocity * velocity * dragCoeff * crossSectArea * (velocity/abs(velocity))
         
-    totalMass = mass + passengerSlider.value
-    dragForce = 0.5 * (fluidDens) * velocity * velocity * dragCoeff * crossSectArea * (velocity/abs(velocity))
-    dragXForce = 0.5 * (fluidDens) * vx * vx * dragCoeff * crossSectArea * (vx/abs(vx))
-    dragYForce = 0.5 * (fluidDens) * vy * vy * dragCoeff * crossSectArea * (vy/abs(vy))
-    gravForce = totalMass * gravity
-    buoForce = (fluidDens) * gravity * fluidVol  
-    
-    totalXForce = buoForce - gravForce + dragXForce
-    totalYForce = buoForce - gravForce + dragYForce
-    
-    pressure = (pressureAtSeaLevel)*(exp(-(molarMass/(6.022*10^(23)))*gravity*heightAboveSeaLvl)/((1.380649) * 10^(-23) * (airTemperature + 273.15)))
-    fluidDens = (pressure * molarMass)/((0.0821)*(airTemperature + 273.15))
+        if abs(vx) != 0:
+            dragXForce = 0.5 * (fluidDens) * vx * vx * dragCoeff * crossSectArea * (vx/abs(vx))
+        else:
+            dragXForce = 0
+            
+        if abs(vy) != 0:
+            dragYForce = 0.5 * (fluidDens) * vy * vy * dragCoeff * crossSectArea * (vy/abs(vy))
+        else:
+            dragYForce = 0
+            
+        gravForce = totalMass * gravity
+        buoForce = -(fluidDens) * gravity * fluidVol  
         
-    ay = totalYForce / totalMass
-    ax = totalXForce / totalMass
+        totalXForce = buoForce - gravForce + dragXForce
+        totalYForce = buoForce - gravForce + dragYForce
         
-    viy = vy
-    vix = vx
-    vfy = vy + ay * dt 
-    vfx = vx + ax * dt
-    
-    posxIncr = (vfx^2 - vix^2) / (2*ax)
-    posyIncr = (vfy^2 - viy^2) / (2*ay) 
-    
-    finalPosX = posx + posxIncr
-    finalPosY = posy + posyIncr
-    
-    balloon.pos(finalPosX, finalPosY, 0)
-    
-    altitude = finalPosY
-    posx = finalPosX
-    posy = finalPosY
-    
-    vy = vfy
-    vx = vfx
-    
-    time += dt
+        print("buo" + buoForce)
+        print("grav" + gravForce)
+        print("drag" + dragYForce)
+        
+        print(totalYForce)
+            
+        ay = totalYForce / totalMass
+        ax = totalXForce / totalMass
+            
+        viy = vy
+        vix = vx
+        vfy = vy + ay * dt 
+        vfx = vx + ax * dt
+        
+        posxIncr = (vfx^2 - vix^2) / (2*ax)
+        posyIncr = (vfy^2 - viy^2) / (2*ay) 
+        
+        finalPosX = posx + posxIncr
+        finalPosY = posy + posyIncr
+        
+        balloon.pos = vec(finalPosX, finalPosY, 0)
+        
+        altitude = finalPosY
+        posx = finalPosX
+        posy = finalPosY
+        
+        vy = vfy
+        vx = vfx
+        
+        time += dt
