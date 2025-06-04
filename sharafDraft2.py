@@ -34,11 +34,13 @@ molarMass = 100
 # variables: fluid density, velocity, drag coefficient, cross sectional area, mass, gravity, fluid volume, altitude
 
 def setMass(event):
+    global mass
     if event.id is 'x':
         mass = event.value
 
-def setfluidDens():
-    fluidDens = 45
+#def setfluidDens():
+ #   global fluidDens
+  #  fluidDens = 45
 
 def setPlanet(p):
     if p.checked:
@@ -51,6 +53,7 @@ def setPlanet(p):
             buttons[i].checked = False
 
 def setDefaults(x):
+    global fluidDens, airTemperature, dragCoeff, planetMass, air
     if x == "Earth":
         backgroundPic = 45
     elif x == "Saturn":
@@ -91,6 +94,7 @@ def setDefaults(x):
         air = 'air'
         
 def changeAir(evt):
+    global air
     air = evt.id
     
 speedVsTime = graph(title = 'Speed vs Time', xtitle = 'Time (s)', ytitle = 'Speed (m/s)', xmin = 0, ymin = 0, align="right", width="250", height="2")
@@ -130,6 +134,7 @@ passengerSlider = slider(min = 0, max = 10, value = 0, bind = numPassengers, ste
 scene.append_to_caption('</div>')
 
 def numPassengers(s):
+    global mass
     mass = s.value
     numPassengersValueDisplay.text = str(passengerSlider.value)
 numPassengersTextDisplay = wtext(text = 'Number of Passengers = ')
@@ -141,6 +146,7 @@ sizeOfBalloonSlider = slider(bind = balloonSize, min = 150, max = 1000, value = 
 scene.append_to_caption('</div>')
 
 def balloonSize(s):
+    global crossSectArea
     crossSectArea = sizeOfBalloonSlider.value
     balloonSizeValueDisplay.text = str(sizeOfBalloonSlider.value)
     radius = sqrt(crossSectArea / pi)
@@ -156,6 +162,7 @@ tempOfFlameSlider = slider(bind = changeTemp, min = 0, max = 700, value = 350)
 scene.append_to_caption('</div>')
 
 def changeTemp(s):
+    global airTemperature
     airTemperature = tempOfFlameSlider.value
     tempOfFlameValueDisplay.text = str(tempOfFlameSlider.value)
 
@@ -168,6 +175,7 @@ windSlider = slider(bind = changeWind, min = 0, max = 1000, value = 0)
 scene.append_to_caption('</div>')
 
 def changeWind(s):
+    global wind
     wind = windSlider.value
     windValueDisplay.text = str(windSlider.value)
 
@@ -243,6 +251,7 @@ ay = 0
 ax = 0
 
 while True:
+    global velocity, pressure, fluidDens, totalMass, dragForce, dragXForce, dragYForce, gravForce, buoForce, totalXForce, totalYForce, ax, ay, viy, vix, vfy, vfx, posxIncr, posyIncr, finalPosX, finalPosY, altitude, vy, vx, posx, posy, time
     rate(1)
     if running:        
         if heightAboveSeaLvl < 0:
