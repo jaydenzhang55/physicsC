@@ -10,7 +10,7 @@ scene.userspin = False
 scene.userpan = False
 
 fluidDens = 1.225
-airTemperature = 37
+airTemperature = 273.15 #Kelvin at 1 bar
 vx = 0
 vy = 0
 velocity = 0
@@ -52,52 +52,40 @@ def setDefaults(x):
     if x == "Earth":
         backgroundPic = 45
     elif x == "Saturn":
-        backgroundPic = 45
-        fluidDens = 00
-        airTemperature = 00
+        fluidDens = 0.19 #at 1 bar
+        airTemperature = 134 #Kelvin at 1 bar
         dragCoeff = 0.515 #based on Atlas rocket https://web.archive.org/web/20170313142729/http://www.braeunig.us/apollo/saturnV.htm
         planetMass = 5.684*10^26
-        fluidVol = 00
         air = 'air'
     elif x == "Venus":
-        backgroundPic = 45
         fluidDens = 00
         airTemperature = 00
-        dragCoeff = 0.515
-        planetMass = 5.684*10^26
-        fluidVol = 00
+        dragCoeff = 2 #between 1.7-2.3
+        planetMass = 4.8673*10^24
         air = 'air'
     elif x == "Mars":
-        backgroundPic = 45
         fluidDens = 00
         airTemperature = 00
         dragCoeff = 0.515
         planetMass = 5.684*10^26
-        fluidVol = 00
         air = 'air'
     elif x == "Jupiter":
-        backgroundPic = 45
         fluidDens = 00
         airTemperature = 00
         dragCoeff = 0.515
         planetMass = 5.684*10^26
-        fluidVol = 00
         air = 'air'
     elif x == "Neptune":
-        backgroundPic = 45
         fluidDens = 00
         airTemperature = 00
         dragCoeff = 0.515
         planetMass = 5.684*10^26
-        fluidVol = 00
         air = 'air'
     elif x == "Uranus":
-        backgroundPic = 45
         fluidDens = 00
         airTemperature = 00
         dragCoeff = 0.515
         planetMass = 5.684*10^26
-        fluidVol = 00
         air = 'air'
         
 def changeAir(evt):
