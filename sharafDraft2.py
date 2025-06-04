@@ -250,6 +250,8 @@ def changeMaterial(evt):
     elif evt.index is 8:
         balloon.texture="https://i.imgur.com/3N4NFBM.jpeg"
 
+backgroundBox = box(pos = vector(0, 0, -100), size = vector(1000, 1000, 0.1), color = color.white, texture = "https://i.imgur.com/wHGxacb.png")
+
 time = 0; dt=3600
 
 while(running):
@@ -259,8 +261,3 @@ while(running):
     vy = vy + ay * dt 
     vx = vx + ax * dt
     time += dt
-
-
-#//////////////////////////////////////////////////////////    
-    
-backgroundBox = box(pos = vector(0, 0, -100), size = vector(1000, 1000, 0.1), color = color.white, texture = "https://i.imgur.com/wHGxacb.png")
