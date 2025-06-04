@@ -204,27 +204,30 @@ running = False
 def start(b):
     running = not running
     if running: 
-        startButton.text = "Pause"
+        startButton.text = "Running"
     else: 
         startButton.text = "Run"
 
+def reset(b):
+    global running
+    running = False
+    startButton.text = "Run"
+
 startButton = button(text = "Run", pos = scene.title_anchor, bind = start)
+resetButton = button(text = "Reset", pos = scene.title_anchor, bind = reset)
+
 balloon = sphere(pos = vec(0, altitude, 0), radius = sqrt(crossSectArea/pi), color = color.blue)
 
 def changeMaterial(evt):
     if evt.index < 1:
         balloon.texture = "https://i.imgur.com/YwqXpCA.jpeg"
     elif evt.index is 1:
-        balloon.color = color.yellow
         balloon.texture = "https://i.imgur.com/aHf7shx.png"
     elif evt.index is 2:
-        balloon.color = color.red
         balloon.texture = "https://i.imgur.com/z1NDKU1.png"
     elif evt.index is 3: 
-        balloon.color = color.green
         balloon.texture = "https://i.imgur.com/z1NDKU1.png"
     elif evt.index is 4: 
-        #balloon.color = color.black
         balloon.texture="https://i.imgur.com/FkrZo0R.png"
     elif evt.index is 5:
         balloon.texture="https://i.imgur.com/zEuDPcK.jpeg"
