@@ -95,9 +95,30 @@ def setDefaults(x):
         planetMass = 5.684*10^26
         air = 'air'
         
-def changeAir(evt):
-    global air
+def changeAir(evt): # stp
+    global air, molarMass, fluidDens, numberOfMoles
     air = evt.selected
+    if 'Air':
+        molarMass = 28.965 #g/mol
+        fluidDens = 1.225 #kg/m^3
+    elif 'Hydrogen':
+        molarMass = 2
+        fluidDens = 0.09 
+    elif 'Nitrogen':
+        molarMass = 28.02 
+        fluidDens = 1.2506 
+    elif 'Helium':
+        molarMass = 4 
+        fluidDens = 0.1784
+    elif 'Oxygen':
+        molarMass = 32
+        fluidDens = 1.43
+    elif 'Tungsten hexafluoride':
+        molarMass = 297.83
+        fluidDens = 13
+    
+    massOfAir = fluidVol * fluidDens / 1000
+    numberOfMoles = massOfAir / molarMass
     
 speedVsTime = graph(title = 'Speed vs Time', xtitle = 'Time (s)', ytitle = 'Speed (m/s)', xmin = 0, ymin = 0, align="right", width="250", height="2")
 positionVsTime = graph(title = 'Position vs Time', xtitle = 'Time (s)', ytitle = 'Position', xmin = 0, ymin = 0, align="right", width="250", height="2")
@@ -120,7 +141,7 @@ for i in range(len(time_points)):
 
 venusRadio = radio(bind=setPlanet, text = "Venus", i = 0, plan = "Venus")
 marsRadio = radio(bind=setPlanet, text = "Mars", i = 1, plan = "Mars")
-earthRadio = radio(bind=setPlanet, text = "Earth", i = 2, plan = "Earth")
+earthRadio = radio(bind=setPlanet, text = "Earth", i = 2, plan = "Earth", checked = True)
 saturnRadio = radio(bind=setPlanet, text = "Saturn", i = 3, plan = "Saturn")
 jupiterRadio = radio(bind=setPlanet, text = "Jupiter", i = 4, plan = "Jupiter")
 neptuneRadio = radio(bind=setPlanet, text = "Neptune", i = 5, plan = "Neptune")
@@ -132,7 +153,7 @@ scene.append_to_caption('<div id="right">')
 scene.append_to_caption('<div style="margin-bottom: 15px;">')
 
 
-passengerSlider = slider(min = 0, max = 10, value = 0, bind = numPassengers, step = 1)
+passengerSlider = slider(min = 0, max = 10, value = 2, bind = numPassengers, step = 1)
 scene.append_to_caption('</div>')
 
 def numPassengers(s):
