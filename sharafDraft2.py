@@ -30,6 +30,8 @@ wind = 0
 homePlanet = "Earth"
 pressureAtSeaLevel = 100
 molarMass = 100
+flameTemperature = 0
+numberOfMoles = 1003201039138223871938913791378927183
 
 # variables: fluid density, velocity, drag coefficient, cross sectional area, mass, gravity, fluid volume, altitude
 
@@ -95,7 +97,7 @@ def setDefaults(x):
         
 def changeAir(evt):
     global air
-    air = evt.id
+    air = evt.selected
     
 speedVsTime = graph(title = 'Speed vs Time', xtitle = 'Time (s)', ytitle = 'Speed (m/s)', xmin = 0, ymin = 0, align="right", width="250", height="2")
 positionVsTime = graph(title = 'Position vs Time', xtitle = 'Time (s)', ytitle = 'Position', xmin = 0, ymin = 0, align="right", width="250", height="2")
@@ -146,10 +148,11 @@ sizeOfBalloonSlider = slider(bind = balloonSize, min = 150, max = 1000, value = 
 scene.append_to_caption('</div>')
 
 def balloonSize(s):
-    global crossSectArea
+    global crossSectArea, mass, fluidVol
     crossSectArea = sizeOfBalloonSlider.value
     balloonSizeValueDisplay.text = str(sizeOfBalloonSlider.value)
     radius = sqrt(crossSectArea / pi)
+    fluidVol = (4/3)*pi*radius^3
     mass = mass + fluidDens * (radius ^ 3)
     balloon.scale(radius)
 
@@ -162,8 +165,8 @@ tempOfFlameSlider = slider(bind = changeTemp, min = 0, max = 700, value = 350)
 scene.append_to_caption('</div>')
 
 def changeTemp(s):
-    global airTemperature
-    airTemperature = tempOfFlameSlider.value
+    global flameTemperature
+    flameTemperature = tempOfFlameSlider.value
     tempOfFlameValueDisplay.text = str(tempOfFlameSlider.value)
 
 tempOfFlameTextDisplay = wtext(text = 'Temperature of Flame (°C) = ')
@@ -251,7 +254,7 @@ ay = 0
 ax = 0
 
 while True:
-    global velocity, pressure, fluidDens, totalMass, dragForce, dragXForce, dragYForce, gravForce, buoForce, totalXForce, totalYForce, ax, ay, viy, vix, vfy, vfx, posxIncr, posyIncr, finalPosX, finalPosY, altitude, vy, vx, posx, posy, time
+    global velocity, pressure, fluidVol, flameTemperature, fluidDens, totalMass, dragForce, dragXForce, dragYForce, gravForce, buoForce, totalXForce, totalYForce, ax, ay, viy, vix, vfy, vfx, posxIncr, posyIncr, finalPosX, finalPosY, altitude, vy, vx, posx, posy, time
     rate(1)
     if running:        
         if heightAboveSeaLvl < 0:
@@ -261,6 +264,8 @@ while True:
         
         pressure = (pressureAtSeaLevel)*(exp(-(molarMass/(6.022*10^(23)))*gravity*heightAboveSeaLvl))/((1.380649) * 10^(-23) * (airTemperature + 273.15))
         fluidDens = (pressure * molarMass)/((0.0821)*(airTemperature + 273.15))
+        
+        fluidVol = numberOfMoles * (0.0821) * (flameTemperature) / pressure
             
         totalMass = mass + passengerSlider.value
         dragForce = 0.5 * (fluidDens) * velocity * velocity * dragCoeff * crossSectArea * (velocity/abs(velocity))
@@ -311,3 +316,4 @@ while True:
         vx = vfx
         
         time += dt
+
