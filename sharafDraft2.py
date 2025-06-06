@@ -122,6 +122,7 @@ def changeAir(evt): # stp
     massOfAir = fluidVol * fluidDens / 1000
     numberOfMoles = massOfAir / molarMass
     
+    
 speedVsTime = graph(title = 'Speed vs Time', xtitle = 'Time (s)', ytitle = 'Speed (m/s)', xmin = 0, ymin = 0, align="right", width="250", height="2")
 positionVsTime = graph(title = 'Position vs Time', xtitle = 'Time (s)', ytitle = 'Position', xmin = 0, ymin = 0, align="right", width="250", height="2")
 forceVsTime = graph(title = 'Force vs Time', xtitle = 'Time (s)', ytitle = 'Force', xmin = 0, ymin = 0, align="right", width="250", height="2")
@@ -241,6 +242,7 @@ startButton = button(text = "Run", pos = scene.title_anchor, bind = start)
 resetButton = button(text = "Reset", pos = scene.title_anchor, bind = reset)
 
 balloon = sphere(pos = vec(0, altitude - 9, 0), radius = sqrt(crossSectArea/pi) / 50, color = color.blue)
+attach_arrow(balloon, "velocity", color=color.green, scale=10, shaftwidth=balloon.radius/3)
 
 def changeMaterial(evt):
     if evt.index < 1:
@@ -277,7 +279,7 @@ ay = 0
 ax = 0
 
 while True:
-    global velocity, pressure, fluidVol, flameTemperature, fluidDens, totalMass, dragForce, dragXForce, dragYForce, gravForce, buoForce, totalXForce, totalYForce, ax, ay, viy, vix, vfy, vfx, posxIncr, posyIncr, finalPosX, finalPosY, altitude, vy, vx, posx, posy, time
+    global velocity, airPressure, fluidVol, flameTemperature, fluidDens, totalMass, dragForce, dragXForce, dragYForce, gravForce, buoForce, totalXForce, totalYForce, ax, ay, viy, vix, vfy, vfx, posxIncr, posyIncr, finalPosX, finalPosY, altitude, vy, vx, posx, posy, time
     rate(1)
     if running:        
         if heightAboveSeaLvl < 0:
@@ -285,12 +287,12 @@ while True:
             
         velocity = sqrt(vx^2 + vy^2)
         
-        pressure = (pressureAtSeaLevel)*(exp(-(molarMass/(6.022*10^(23)))*gravity*heightAboveSeaLvl))/((1.380649) * 10^(-23) * (airTemperature + 273.15))
-        fluidDens = (pressure * molarMass)/((0.0821)*(airTemperature + 273.15))
+        airPressure = (pressureAtSeaLevel)*(exp(-(molarMass/(6.022*10^(23)))*gravity*heightAboveSeaLvl))/((1.380649) * 10^(-23) * (airTemperature + 273.15))
+        fluidDens = (airPressure * molarMass)/((0.0821)*(airTemperature + 273.15))
         
-        fluidVol = numberOfMoles * (0.0821) * (flameTemperature) / pressure
+        fluidVol = numberOfMoles * (0.0821) * (flameTemperature) / airPressure
             
-        totalMass = mass + (passengerSlider.value * 62)
+        totalMass = mass + (passengerSlider.value * 62) + massOfAir
         dragForce = 0.5 * (fluidDens) * velocity * velocity * dragCoeff * crossSectArea * (velocity/abs(velocity))
         
         if abs(vx) != 0:
@@ -339,3 +341,4 @@ while True:
         vx = vfx
         
         time += dt
+
