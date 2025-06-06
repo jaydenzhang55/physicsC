@@ -18,20 +18,22 @@ vy = 0
 velocity = 0
 dragCoeff = 0.5
 crossSectArea = 2800
-airPressure = 101325
-mass = 3000
+airPressure = 1.01325
+mass = 350
 gravity = 9.80665
-fluidVol = 2800
+fluidVol = 4/3 * pi * (sqrt(crossSectArea / pi))^3
 altitude = 0
 heightAboveSeaLvl = 0
 material = 'Nylon'
 air = 'Air'
 wind = 0
 homePlanet = "Earth"
-pressureAtSeaLevel = 100
-molarMass = 100
-flameTemperature = 0
-numberOfMoles = 1003201039138223871938913791378927183
+pressureAtSeaLevel = 1.01325
+molarMass = 28.965
+flameTemperature = 225 + 273.15 #Kelvin
+numberOfMoles = (fluidVol * fluidDens / 1000) / 28.965
+massOfAir = fluidVol * fluidDens / 1000
+
 
 # variables: fluid density, velocity, drag coefficient, cross sectional area, mass, gravity, fluid volume, altitude
 
@@ -96,7 +98,7 @@ def setDefaults(x):
         air = 'air'
         
 def changeAir(evt): # stp
-    global air, molarMass, fluidDens, numberOfMoles
+    global air, molarMass, fluidDens, numberOfMoles, massOfAir
     air = evt.selected
     if 'Air':
         molarMass = 28.965 #g/mol
@@ -288,7 +290,7 @@ while True:
         
         fluidVol = numberOfMoles * (0.0821) * (flameTemperature) / pressure
             
-        totalMass = mass + passengerSlider.value
+        totalMass = mass + (passengerSlider.value * 62)
         dragForce = 0.5 * (fluidDens) * velocity * velocity * dragCoeff * crossSectArea * (velocity/abs(velocity))
         
         if abs(vx) != 0:
@@ -337,4 +339,3 @@ while True:
         vx = vfx
         
         time += dt
-
