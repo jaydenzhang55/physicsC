@@ -17,8 +17,8 @@ vx = 0
 vy = 0
 velocity = 0
 dragCoeff = 0.5
-crossSectArea = 2800
-airPressure = 1.01325
+crossSectArea = 467 #pi*r^2
+airPressure = 760 #mmHg
 mass = 350
 gravity = 9.80665
 fluidVol = 4/3 * pi * (sqrt(crossSectArea / pi))^3
@@ -28,8 +28,8 @@ material = 'Nylon'
 air = 'Air'
 wind = 0
 homePlanet = "Earth"
-pressureAtSeaLevel = 1.01325
-molarMass = 28.965
+pressureAtSeaLevel = 101325
+molarMass = 0.028965
 flameTemperature = 225 + 273.15 #Kelvin
 numberOfMoles = (fluidVol * fluidDens / 1000) / 28.965
 massOfAir = fluidVol * fluidDens / 1000
@@ -242,7 +242,7 @@ startButton = button(text = "Run", pos = scene.title_anchor, bind = start)
 resetButton = button(text = "Reset", pos = scene.title_anchor, bind = reset)
 
 balloon = sphere(pos = vec(0, altitude - 9, 0), radius = sqrt(crossSectArea/pi) / 50, color = color.blue)
-attach_arrow(balloon, "velocity", color=color.green, scale=10, shaftwidth=balloon.radius/3)
+#attach_arrow(balloon, "velocity", color=color.green, scale=10, shaftwidth=balloon.radius/3)
 
 def changeMaterial(evt):
     if evt.index < 1:
@@ -274,66 +274,72 @@ posy = 0
 ay = 0
 ax = 0
 
+balloon.velocity = 0
+
 while True:
-    global velocity, airPressure, fluidVol, flameTemperature, fluidDens, totalMass, dragForce, dragXForce, dragYForce, gravForce, buoForce, totalXForce, totalYForce, ax, ay, viy, vix, vfy, vfx, posxIncr, posyIncr, finalPosX, finalPosY, altitude, vy, vx, posx, posy, time
+    global velocity, airPressure, fluidVol, heightAboveSeaLvl, flameTemperature, fluidDens, totalMass, dragForce, dragXForce, dragYForce, gravForce, buoForce, totalXForce, totalYForce, ax, ay, viy, vix, vfy, vfx, posxIncr, posyIncr, finalPosX, finalPosY, altitude, vy, vx, posx, posy, time
     rate(1)
     if running:        
         if heightAboveSeaLvl < 0:
             running = False
-            
-        velocity = sqrt(vx^2 + vy^2)
-        
-        airPressure = (pressureAtSeaLevel)*(exp(-(molarMass/(6.022*10^(23)))*gravity*heightAboveSeaLvl))/((1.380649) * 10^(-23) * (airTemperature + 273.15))
-        fluidDens = (airPressure * molarMass)/((0.0821)*(airTemperature + 273.15))
-        
-        fluidVol = numberOfMoles * (0.0821) * (flameTemperature) / airPressure
-            
-        totalMass = mass + (passengerSlider.value * 62) + massOfAir
-        dragForce = 0.5 * (fluidDens) * velocity * velocity * dragCoeff * crossSectArea * (velocity/abs(velocity))
-        
-        if abs(vx) != 0:
-            dragXForce = 0.5 * (fluidDens) * vx * vx * dragCoeff * crossSectArea * (vx/abs(vx))
         else:
-            dragXForce = 0
+            velocity = sqrt(vx^2 + vy^2)
+            airPressureOut = (pressureAtSeaLevel)*(exp(-(molarMass)*gravity*heightAboveSeaLvl)/(8.314 * (airTemperature))) #Pascals
+            fluidDensOut = (airPressureOut)/((287.058)*(airTemperature)) #kg/m^3
             
-        if abs(vy) != 0:
-            dragYForce = 0.5 * (fluidDens) * vy * vy * dragCoeff * crossSectArea * (vy/abs(vy))
-        else:
-            dragYForce = 0
+            airPressureIn = (pressureAtSeaLevel)*(exp(-(molarMass)*gravity*heightAboveSeaLvl)/(8.314 * (flameTemperature))) #Pascals
+            fluidDensIn = (airPressureIn)/((287.058)*(flameTemperature)) #kg/m^3
             
-        gravForce = totalMass * gravity
-        buoForce = -(fluidDens) * gravity * fluidVol  
-        
-        totalXForce = buoForce - gravForce + dragXForce
-        totalYForce = buoForce - gravForce + dragYForce
-        
-        print("buo" + buoForce)
-        print("grav" + gravForce)
-        print("drag" + dragYForce)
-        
-        print(totalYForce)
+            fluidDensDiff = fluidDensOut - fluidDensIn
             
-        ay = totalYForce / totalMass
-        ax = totalXForce / totalMass
+            fluidVolNew = (fluidVol / 288.15) * (flameTemperature + 288.15)
             
-        viy = vy
-        vix = vx
-        vfy = vy + ay * dt 
-        vfx = vx + ax * dt
+            totalMass = mass + (passengerSlider.value * 62) + massOfAir
+            dragForce = 0.5 * (fluidDensOut) * velocity * velocity * dragCoeff * crossSectArea * (velocity/abs(velocity))
         
-        posxIncr = (vfx^2 - vix^2) / (2*ax)
-        posyIncr = (vfy^2 - viy^2) / (2*ay) 
+            if abs(vx) != 0:
+                dragXForce = 0.5 * (fluidDensOut) * vx * vx * dragCoeff * crossSectArea * (vx/abs(vx))
+            else:
+                dragXForce = 0
+            
+            if abs(vy) != 0:
+                dragYForce = 0.5 * (fluidDensOut) * vy * vy * dragCoeff * crossSectArea * (vy/abs(vy))
+            else:
+                dragYForce = 0
+            
+            gravForce = totalMass * gravity
+            buoForce = (fluidDensDiff) * gravity * fluidVolNew  
         
-        finalPosX = posx + posxIncr
-        finalPosY = posy + posyIncr
+            totalXForce = buoForce - gravForce + dragXForce
+            totalYForce = buoForce - gravForce + dragYForce
         
-        balloon.pos = vec(finalPosX, finalPosY, 0)
+            print("buo" + buoForce)
+            print("grav" + gravForce)
+            print("drag" + dragYForce)
         
-        altitude = finalPosY
-        posx = finalPosX
-        posy = finalPosY
+            print(totalYForce)
+                
+            ay = totalYForce / totalMass
+            ax = totalXForce / totalMass
+            
+            viy = vy
+            vix = vx
+            vfy = vy + ay * dt 
+            vfx = vx + ax * dt
         
-        vy = vfy
-        vx = vfx
+            posxIncr = (vfx^2 - vix^2) / (2*ax)
+            posyIncr = (vfy^2 - viy^2) / (2*ay) 
         
-        time += dt
+            finalPosX = posx + posxIncr
+            finalPosY = posy + posyIncr
+        
+            balloon.pos = vec(finalPosX, finalPosY, 0)
+            
+            altitude = finalPosY
+            posx = finalPosX
+            posy = finalPosY
+        
+            vy = vfy
+            vx = vfx
+        
+            time += dt
