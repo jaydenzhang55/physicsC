@@ -60,23 +60,23 @@ def setDefaults(x):
     global fluidDens, airTemperature, dragCoeff, planetMass, air
     if x == "Earth":
         backgroundPic = 45
-    elif x == "Saturn":
+    elif x == "Saturn": #done
         fluidDens = 0.19 #at 1 bar
         airTemperature = 134 #Kelvin at 1 bar
         dragCoeff = 0.515 #based on Atlas rocket https://web.archive.org/web/20170313142729/http://www.braeunig.us/apollo/saturnV.htm
         planetMass = 5.684*10^26
         air = 'air'
-    elif x == "Venus":
-        fluidDens = 00
-        airTemperature = 00
+    elif x == "Venus": #done
+        fluidDens = 65 #kg/m^3 at surface - would be much lower at 1 bar
+        airTemperature = 301.5 #Kelvin at 1 bar
         dragCoeff = 2 #between 1.7-2.3
         planetMass = 4.8673*10^24
         air = 'air'
     elif x == "Mars":
         fluidDens = 00
         airTemperature = 00
-        dragCoeff = 0.515
-        planetMass = 5.684*10^26
+        dragCoeff = 00
+        planetMass = 6.418*10^23
         air = 'air'
     elif x == "Jupiter":
         fluidDens = 00
@@ -341,4 +341,3 @@ while True:
         vx = vfx
         
         time += dt
-
