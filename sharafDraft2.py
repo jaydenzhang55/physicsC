@@ -311,7 +311,7 @@ while True:
             gravForce = totalMass * gravity
             buoForce = (fluidDensDiff) * gravity * fluidVolNew  
         
-            totalXForce = buoForce - gravForce + dragXForce
+            totalXForce = dragXForce
             totalYForce = buoForce - gravForce + dragYForce
         
             print("buo" + buoForce)
@@ -327,9 +327,15 @@ while True:
             vix = vx
             vfy = vy + ay * dt 
             vfx = vx + ax * dt
-        
-            posxIncr = (vfx**2 - vix**2) / (2*ax)
-            posyIncr = (vfy**2 - viy**2) / (2*ay) 
+            
+            if abs(ax) > 0:
+                posxIncr = (vfx**2 - vix**2) / (2*ax)
+            else:
+                posxIncr = vfx * dt
+            if abs(ay) > 0:
+                posyIncr = (vfy**2 - viy**2) / (2*ay)
+            else:
+                posyIncr = vfy * dt
         
             finalPosX = posx + posxIncr
             finalPosY = posy + posyIncr
