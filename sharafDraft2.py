@@ -122,25 +122,24 @@ def changeAir(evt): # stp
     massOfAir = fluidVol * fluidDens / 1000
     numberOfMoles = massOfAir / molarMass
     
-    
 speedVsTime = graph(title = 'Speed vs Time', xtitle = 'Time (s)', ytitle = 'Speed (m/s)', xmin = 0, ymin = 0, align="right", width="250", height="2")
-positionVsTime = graph(title = 'Position vs Time', xtitle = 'Time (s)', ytitle = 'Position', xmin = 0, ymin = 0, align="right", width="250", height="2")
+altitudeVsTime = graph(title = 'Altitude vs Time', xtitle = 'Time (s)', ytitle = 'Position', xmin = 0, ymin = 0, align="right", width="250", height="2")
 forceVsTime = graph(title = 'Force vs Time', xtitle = 'Time (s)', ytitle = 'Force', xmin = 0, ymin = 0, align="right", width="250", height="2")
 
 speedCurve = gcurve(graph=speedVsTime, color=color.red)
-positionCurve = gcurve(graph=positionVsTime, color=color.green)
+altitudeCurve = gcurve(graph=altitudeVsTime, color=color.green)
 forceCurve = gcurve(graph=forceVsTime, color=color.blue)
 
-time_points = [0, 1, 2, 3, 4, 5]
-speed_values = [0, 5, 10, 15, 20, 25]
-position_values = [0, 10, 25, 45, 70, 100]
-force_values = [300, 500, 400, 450, 430, 420]
+#time_points = [0, 1, 2, 3, 4, 5]
+#speed_values = [0, 5, 10, 15, 20, 25]
+#position_values = [0, 10, 25, 45, 70, 100]
+#force_values = [300, 500, 400, 450, 430, 420]
 
-for i in range(len(time_points)):
-    rate(5)
-    speedCurve.plot(time_points[i], speed_values[i])
-    positionCurve.plot(time_points[i], position_values[i])
-    forceCurve.plot(time_points[i], force_values[i])
+#for i in range(len(time_points)):
+#    rate(5)
+#    speedCurve.plot(time_points[i], speed_values[i])
+#    positionCurve.plot(time_points[i], position_values[i])
+#    forceCurve.plot(time_points[i], force_values[i])
 
 venusRadio = radio(bind=setPlanet, text = "Venus", i = 0, plan = "Venus")
 marsRadio = radio(bind=setPlanet, text = "Mars", i = 1, plan = "Mars")
@@ -266,7 +265,7 @@ def changeMaterial(evt):
         
 backgroundBox = box(pos = vector(0, 0, 0), size = vector(20, 20, 0.1), color = color.white, texture = "https://i.imgur.com/wHGxacb.png")
 
-time = 0; dt=0.001
+time = 0; dt=0.000005
 
 posx = balloon.pos.x
 posy = balloon.pos.y
@@ -313,12 +312,15 @@ while True:
         
             totalXForce = dragXForce
             totalYForce = buoForce - gravForce + dragYForce
+            
+            totalForceFinal = sqrt(totalXForce*totalXForce + totalYForce*totalYForce)
         
-            print("buo" + buoForce)
-            print("grav" + gravForce)
-            print("drag" + dragYForce)
+#            print("buo" + buoForce)
+#            print("grav" + gravForce)
+#            print("drag" + dragYForce)
         
-            print(totalYForce)
+#            print(totalYForce)
+#            print(posy)
                 
             ay = totalYForce / totalMass
             ax = totalXForce / totalMass
@@ -345,8 +347,13 @@ while True:
             altitude = finalPosY
             posx = finalPosX
             posy = finalPosY
-        
+            
             vy = vfy
             vx = vfx
-        
+            
+            speedCurve.plot(time, vfy)
+            altitudeCurve.plot(time, posy+9)
+            forceCurve.plot(time, totalForceFinal)
+            
             time += dt
+            
