@@ -21,7 +21,7 @@ crossSectArea = 467 #pi*r^2
 airPressure = 760 #mmHg
 mass = 350
 gravity = 9.80665
-fluidVol = 4/3 * pi * (sqrt(crossSectArea / pi))^3
+fluidVol = 4/3 * pi * (sqrt(crossSectArea / pi))**3
 altitude = 0
 heightAboveSeaLvl = 0
 material = 'Nylon'
@@ -64,37 +64,37 @@ def setDefaults(x):
         fluidDens = 0.19 #at 1 bar
         airTemperature = 134 #Kelvin at 1 bar
         dragCoeff = 0.515 #based on Atlas rocket https://web.archive.org/web/20170313142729/http://www.braeunig.us/apollo/saturnV.htm
-        planetMass = 5.684*10^26
+        planetMass = 5.684*10**26
         air = 'air'
     elif x == "Venus": #done
         fluidDens = 65 #kg/m^3 at surface - would be much lower at 1 bar
         airTemperature = 301.5 #Kelvin at 1 bar
         dragCoeff = 2 #between 1.7-2.3
-        planetMass = 4.8673*10^24
+        planetMass = 4.8673*10**24
         air = 'air'
     elif x == "Mars":
         fluidDens = 00
         airTemperature = 00
         dragCoeff = 00
-        planetMass = 6.418*10^23
+        planetMass = 6.418*10**23
         air = 'air'
     elif x == "Jupiter":
         fluidDens = 00
         airTemperature = 00
         dragCoeff = 0.515
-        planetMass = 5.684*10^26
+        planetMass = 5.684*10**26
         air = 'air'
     elif x == "Neptune":
         fluidDens = 00
         airTemperature = 00
         dragCoeff = 0.515
-        planetMass = 5.684*10^26
+        planetMass = 5.684*10**26
         air = 'air'
     elif x == "Uranus":
         fluidDens = 00
         airTemperature = 00
         dragCoeff = 0.515
-        planetMass = 5.684*10^26
+        planetMass = 5.684*10**26
         air = 'air'
         
 def changeAir(evt): # stp
@@ -176,8 +176,8 @@ def balloonSize(s):
     crossSectArea = sizeOfBalloonSlider.value
     balloonSizeValueDisplay.text = str(sizeOfBalloonSlider.value)
     radius = sqrt(crossSectArea / pi)
-    fluidVol = (4/3)*pi*radius^3
-    mass = mass + fluidDens * (radius ^ 3)
+    fluidVol = (4/3)*pi*radius**3
+    mass = mass + fluidDens * (radius ** 3)
     balloon.scale(radius)
 
 balloonSizeTextDisplay = wtext(text = 'Cross Sectional Area of Balloon (m^2) = ')
@@ -266,11 +266,12 @@ def changeMaterial(evt):
         
 backgroundBox = box(pos = vector(0, 0, 0), size = vector(20, 20, 0.1), color = color.white, texture = "https://i.imgur.com/wHGxacb.png")
 
-time = 0; dt=1
+time = 0; dt=0.001
 
-posx = 0
-posy = 0
+posx = balloon.pos.x
+posy = balloon.pos.y
 
+vx = 0
 ay = 0
 ax = 0
 
@@ -278,13 +279,13 @@ balloon.velocity = 0
 
 while True:
     global velocity, airPressure, fluidVol, heightAboveSeaLvl, flameTemperature, fluidDens, totalMass, dragForce, dragXForce, dragYForce, gravForce, buoForce, totalXForce, totalYForce, ax, ay, viy, vix, vfy, vfx, posxIncr, posyIncr, finalPosX, finalPosY, altitude, vy, vx, posx, posy, time
-    rate(1)
+    rate(1/dt)
     if running:        
         if heightAboveSeaLvl < 0:
             running = False
         else:
-            velocity = sqrt(vx^2 + vy^2)
-            airPressureOut = (pressureAtSeaLevel)*(exp(-(molarMass)*gravity*heightAboveSeaLvl)/(8.314 * (airTemperature))) #Pascals
+            velocity = sqrt(vx**2 + vy**2)
+            airPressureOut = (pressureAtSeaLevel)*(exp((-(molarMass)*gravity*heightAboveSeaLvl)/(8.314 * (airTemperature)))) #Pascals
             fluidDensOut = (airPressureOut)/((287.058)*(airTemperature)) #kg/m^3
             
             airPressureIn = (pressureAtSeaLevel)*(exp(-(molarMass)*gravity*heightAboveSeaLvl)/(8.314 * (flameTemperature))) #Pascals
@@ -298,12 +299,12 @@ while True:
             dragForce = 0.5 * (fluidDensOut) * velocity * velocity * dragCoeff * crossSectArea * (velocity/abs(velocity))
         
             if abs(vx) != 0:
-                dragXForce = 0.5 * (fluidDensOut) * vx * vx * dragCoeff * crossSectArea * (vx/abs(vx))
+                dragXForce = -0.5 * (fluidDensOut) * vx * abs(vx) * dragCoeff * crossSectArea
             else:
                 dragXForce = 0
             
             if abs(vy) != 0:
-                dragYForce = 0.5 * (fluidDensOut) * vy * vy * dragCoeff * crossSectArea * (vy/abs(vy))
+                dragYForce = -0.5 * (fluidDensOut) * vy * abs(vy) * dragCoeff * crossSectArea
             else:
                 dragYForce = 0
             
@@ -327,8 +328,8 @@ while True:
             vfy = vy + ay * dt 
             vfx = vx + ax * dt
         
-            posxIncr = (vfx^2 - vix^2) / (2*ax)
-            posyIncr = (vfy^2 - viy^2) / (2*ay) 
+            posxIncr = (vfx**2 - vix**2) / (2*ax)
+            posyIncr = (vfy**2 - viy**2) / (2*ay) 
         
             finalPosX = posx + posxIncr
             finalPosY = posy + posyIncr
