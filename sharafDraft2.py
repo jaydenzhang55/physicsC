@@ -185,7 +185,7 @@ balloonSizeValueDisplay = wtext(text = str(sizeOfBalloonSlider.value))
     
 scene.append_to_caption('<div id="right">')
 scene.append_to_caption('<div style="margin-bottom: 15px;">')
-tempOfFlameSlider = slider(bind = changeTemp, min = 0, max = 700, value = 350)
+tempOfFlameSlider = slider(bind = changeTemp, min = 1, max = 700, value = 350)
 scene.append_to_caption('</div>')
 
 def changeTemp(s):
@@ -288,12 +288,12 @@ while True:
             airPressureOut = (pressureAtSeaLevel)*(exp((-(molarMass)*gravity*heightAboveSeaLvl)/(8.314 * (airTemperature)))) #Pascals
             fluidDensOut = (airPressureOut)/((287.058)*(airTemperature)) #kg/m^3
             
-            airPressureIn = (pressureAtSeaLevel)*(exp(-(molarMass)*gravity*heightAboveSeaLvl)/(8.314 * (flameTemperature))) #Pascals
-            fluidDensIn = (airPressureIn)/((287.058)*(flameTemperature)) #kg/m^3
+            airPressureIn = (pressureAtSeaLevel)*(exp(-(molarMass)*gravity*heightAboveSeaLvl)/(8.314 * (tempOfFlameSlider.value))) #Pascals
+            fluidDensIn = (airPressureIn)/((287.058)*(tempOfFlameSlider.value)) #kg/m^3
             
             fluidDensDiff = fluidDensOut - fluidDensIn
             
-            fluidVolNew = (fluidVol / 288.15) * (flameTemperature + 288.15)
+            fluidVolNew = (fluidVol / 288.15) * (tempOfFlameSlider.value + 288.15)
             
             totalMass = mass + (passengerSlider.value * 62) + massOfAir
             dragForce = 0.5 * (fluidDensOut) * velocity * velocity * dragCoeff * crossSectArea * (velocity/abs(velocity))
