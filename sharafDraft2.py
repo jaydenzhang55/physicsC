@@ -130,17 +130,6 @@ speedCurve = gcurve(graph=speedVsTime, color=color.red)
 altitudeCurve = gcurve(graph=altitudeVsTime, color=color.green)
 forceCurve = gcurve(graph=forceVsTime, color=color.blue)
 
-#time_points = [0, 1, 2, 3, 4, 5]
-#speed_values = [0, 5, 10, 15, 20, 25]
-#position_values = [0, 10, 25, 45, 70, 100]
-#force_values = [300, 500, 400, 450, 430, 420]
-
-#for i in range(len(time_points)):
-#    rate(5)
-#    speedCurve.plot(time_points[i], speed_values[i])
-#    positionCurve.plot(time_points[i], position_values[i])
-#    forceCurve.plot(time_points[i], force_values[i])
-
 venusRadio = radio(bind=setPlanet, text = "Venus", i = 0, plan = "Venus")
 marsRadio = radio(bind=setPlanet, text = "Mars", i = 1, plan = "Mars")
 earthRadio = radio(bind=setPlanet, text = "Earth", i = 2, plan = "Earth", checked = True)
