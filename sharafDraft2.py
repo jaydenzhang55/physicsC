@@ -255,7 +255,7 @@ def reset(b):
     vx = 0
     vy = 0
     
-    balloon.pos = vec(0, altitude - 9, 0)
+    balloon.pos = vec(0, altitude - 18, 0)
     
     speedCurve.delete()
     altitudeCurve.delete() 
@@ -270,8 +270,9 @@ def reset(b):
 startButton = button(text = "Run", pos = scene.title_anchor, bind = start)
 resetButton = button(text = "Reset", pos = scene.title_anchor, bind = reset)
 
-balloon = sphere(pos = vec(0, altitude - 9, 0), radius = sqrt(totalCrossSectionalArea/pi) / 50, color = color.blue)
+balloon = sphere(pos = vec(0, altitude - 18, 0), radius = sqrt(totalCrossSectionalArea/pi) / 50, color = color.blue)
 #attach_arrow(balloon, "velocity", color=color.green, scale=10, shaftwidth=balloon.radius/3)
+scene.center = balloon.pos
 
 def changeMaterial(evt):
     global balloonMass, fluidVol
@@ -408,12 +409,12 @@ while True:
             vx = vfx
             
             speedCurve.plot(time, abs(vfy))
-            altitudeCurve.plot(time, posy+9)
+            altitudeCurve.plot(time, posy)
             forceCurve.plot(time, totalForceFinal)
             
             scene.center = balloon.pos
 
-            heightAboveSeaLvl = altitude + 9
+            heightAboveSeaLvl = altitude
             
             time += dt
             
