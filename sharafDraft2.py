@@ -332,89 +332,85 @@ while True:
     
     rate(100)
     if running:        
-        if heightAboveSeaLvl < 0:
-            print("height" + heightAboveSeaLvl)
-            running = False
+        hotAirDensity = fluidDens * (airTemperature / (tempOfFlameSlider.value + 273.15))
+
+        newFluidVol = fluidVol * ((tempOfFlameSlider.value + 273.15) / airTemperature)    
+        sizeOfBalloonMass = newFluidVol * hotAirDensity
+        mass = balloonMass + payloadMass + sizeOfBalloonMass
+
+        newRadius = pow(((3/4) * newFluidVol / pi),(1/3))
+        totalCrossSectionalArea = pi * newRadius ** 2
+        
+        balloon.radius = (sqrt(totalCrossSectionalArea/pi) / 50)
+
+        velocity = sqrt(vx**2 + vy**2)
+        airPressureOut = (pressureAtSeaLevel)*(exp((-(molarMass)*gravity*heightAboveSeaLvl)/(8.314 * (airTemperature)))) #Pascals
+        fluidDensOut = (airPressureOut)/((287.058)*(airTemperature)) #kg/m^3
+
+        airPressureIn = (pressureAtSeaLevel)*(exp(-(molarMass)*gravity*heightAboveSeaLvl)/(8.314 * (tempOfFlameSlider.value + 273.15))) #Pascals
+        fluidDensIn = (airPressureIn)/((287.058)*(tempOfFlameSlider.value + 273.15)) #kg/m^3
+
+        fluidDensDiff = fluidDensOut - fluidDensIn
+            
+        if velocity > 0:
+            drag_magnitude = 0.5 * fluidDensOut * velocity**2 * dragCoeff * totalCrossSectionalArea
+            dragXForce = -drag_magnitude * (vx / velocity)
+            dragYForce = -drag_magnitude * (vy / velocity)
         else:
-            hotAirDensity = fluidDens * (airTemperature / (tempOfFlameSlider.value + 273.15))
-
-            newFluidVol = fluidVol * ((tempOfFlameSlider.value + 273.15) / airTemperature)    
-            sizeOfBalloonMass = newFluidVol * hotAirDensity
-            mass = balloonMass + payloadMass + sizeOfBalloonMass
-
-            newRadius = pow(((3/4) * newFluidVol / pi),(1/3))
-            totalCrossSectionalArea = pi * newRadius ** 2
-            
-            balloon.radius = (sqrt(totalCrossSectionalArea/pi) / 50)
-
-            velocity = sqrt(vx**2 + vy**2)
-            airPressureOut = (pressureAtSeaLevel)*(exp((-(molarMass)*gravity*heightAboveSeaLvl)/(8.314 * (airTemperature)))) #Pascals
-            fluidDensOut = (airPressureOut)/((287.058)*(airTemperature)) #kg/m^3
-
-            airPressureIn = (pressureAtSeaLevel)*(exp(-(molarMass)*gravity*heightAboveSeaLvl)/(8.314 * (tempOfFlameSlider.value + 273.15))) #Pascals
-            fluidDensIn = (airPressureIn)/((287.058)*(tempOfFlameSlider.value + 273.15)) #kg/m^3
-
-            fluidDensDiff = fluidDensOut - fluidDensIn
-                
-            if velocity > 0:
-                drag_magnitude = 0.5 * fluidDensOut * velocity**2 * dragCoeff * totalCrossSectionalArea
-                dragXForce = -drag_magnitude * (vx / velocity)
-                dragYForce = -drag_magnitude * (vy / velocity)
-            else:
-                dragXForce = 0
-                dragYForce = 0
-            
-            gravForce = mass * gravity
-            buoForce = (fluidDensDiff) * gravity * newFluidVol  # archimedes principle
+            dragXForce = 0
+            dragYForce = 0
         
-            totalXForce = dragXForce
-            totalYForce = buoForce - gravForce + dragYForce
-            
-            totalForceFinal = sqrt(totalXForce*totalXForce + totalYForce*totalYForce)
+        gravForce = mass * gravity
+        buoForce = (fluidDensDiff) * gravity * newFluidVol  # archimedes principle
+    
+        totalXForce = dragXForce
+        totalYForce = buoForce - gravForce + dragYForce
         
-            print("buo" + buoForce)
-            print("grav" + gravForce)
-            print("drag" + dragYForce)
+        totalForceFinal = sqrt(totalXForce*totalXForce + totalYForce*totalYForce)
+    
+        print("buo" + buoForce)
+        print("grav" + gravForce)
+        print("drag" + dragYForce)
+    
+        print(totalYForce)
+        print(posy)
+            
+        ay = totalYForce / mass
+        ax = totalXForce / mass
         
-            print(totalYForce)
-            print(posy)
-                
-            ay = totalYForce / mass
-            ax = totalXForce / mass
-            
-            viy = vy
-            vix = vx
-            vfy = vy + ay * dt 
-            vfx = vx + ax * dt
-            
-            if abs(ax) > 0:
-                posxIncr = (vfx**2 - vix**2) / (2*ax)
-            else:
-                posxIncr = vfx * dt
-            if abs(ay) > 0:
-                posyIncr = (vfy**2 - viy**2) / (2*ay)
-            else:
-                posyIncr = vfy * dt
+        viy = vy
+        vix = vx
+        vfy = vy + ay * dt 
+        vfx = vx + ax * dt
         
-            finalPosX = posx + posxIncr
-            finalPosY = posy + posyIncr
+        if abs(ax) > 0:
+            posxIncr = (vfx**2 - vix**2) / (2*ax)
+        else:
+            posxIncr = vfx * dt
+        if abs(ay) > 0:
+            posyIncr = (vfy**2 - viy**2) / (2*ay)
+        else:
+            posyIncr = vfy * dt
+    
+        finalPosX = posx + posxIncr
+        finalPosY = posy + posyIncr
+    
+        balloon.pos = vec(finalPosX, finalPosY, 0)
         
-            balloon.pos = vec(finalPosX, finalPosY, 0)
-            
-            altitude = finalPosY
-            posx = finalPosX
-            posy = finalPosY
-            
-            vy = vfy
-            vx = vfx
-            
-            speedCurve.plot(time, abs(vfy))
-            altitudeCurve.plot(time, posy)
-            forceCurve.plot(time, totalForceFinal)
-            
-            scene.center = balloon.pos
+        altitude = finalPosY
+        posx = finalPosX
+        posy = finalPosY
+        
+        vy = vfy
+        vx = vfx
+        
+        speedCurve.plot(time, abs(vfy))
+        altitudeCurve.plot(time, posy)
+        forceCurve.plot(time, totalForceFinal)
+        
+        scene.center = balloon.pos
 
-            heightAboveSeaLvl = altitude
-            
-            time += dt
+        heightAboveSeaLvl = altitude
+        
+        time += dt
             
