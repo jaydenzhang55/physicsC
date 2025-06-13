@@ -47,6 +47,7 @@ crossSectAreaDueToTemp = totalCrossSectionalArea - crossSectArea
 gravitationalC = 6.6743 * 10 ** -11
 planetMass = 5.97219 * 10 ** 24
 planetRadius = 6378 * 10 ** 3
+speccAirConst = 287.058
 
 # variables: fluid density, velocity, drag coefficient, cross sectional area, mass, gravity, fluid volume, altitude
 
@@ -131,33 +132,40 @@ def setDefaults(x):
     backgroundBox.texture = backgroundPic
         
 def changeAir(evt): # stp
-    global air, molarMass, fluidDens, numberOfMoles, massOfAir
+    global air, molarMass, fluidDens, numberOfMoles, massOfAir, speccAirConst
     air = evt.selected
     if air == 'Air':
         molarMass = 28.965 #g/mol
         fluidDens = 1.225 #kg/m^3
+        speccAirConst =  287.058
     elif air == 'Hydrogen':
         molarMass = 2
-        fluidDens = 0.09 
+        fluidDens = 0.09
+        speccAirConst =  4.1242
     elif air == 'Nitrogen':
         molarMass = 28.02 
         fluidDens = 1.2506 
+        speccAirConst = 296.8
     elif air == 'Helium':
         molarMass = 4 
         fluidDens = 0.1784
+        speccAirConst = 2077
     elif air == 'Oxygen':
         molarMass = 32
         fluidDens = 1.43
+        speccAirConst = 218
     elif air == 'Tungsten hexafluoride':
         molarMass = 297.83
         fluidDens = 13
+        speccAirConst = 27.91
     elif air == 'Carbon Dioxide':
         molarMass = 44.003
         fluidDens = 1.98
+        speccAirConst = 188.9
     
     massOfAir = fluidVol * fluidDens / 1000
     numberOfMoles = massOfAir / molarMass
-    airCaption.text = air
+    airCaption.text = " Air: " + air
 
 venusRadio = radio(bind=setPlanet, text = "Venus", i = 0, plan = "Venus")
 marsRadio = radio(bind=setPlanet, text = "Mars", i = 1, plan = "Mars")
@@ -273,8 +281,6 @@ def enableControls():
     startButton.disabled = False
     passengerSlider.disabled = False
     sizeOfBalloonSlider.disabled = False
-    tempOfFlameSlider.disabled = False
-    windSlider.disabled = False
     materialMenu.disabled = False
     airMenu.disabled = False
     for button in buttons:
@@ -284,8 +290,6 @@ def disableControls():
     startButton.disabled = True
     passengerSlider.disabled = True
     sizeOfBalloonSlider.disabled = True
-    tempOfFlameSlider.disabled = True
-    windSlider.disabled = True
     materialMenu.disabled = True
     airMenu.disabled = True
     for button in buttons:
@@ -306,7 +310,7 @@ def start(b):
         enableControls()
 
 def reset(b):
-    global running, time, posx, posy, vx, vy, altitude, heightAboveSeaLvl, balloon, speedCurve, altitudeCurve, forceCurve, crossSectArea, fluidVol, sizeOfBalloonMass, payloadMass, balloonMass, mass, wind, vx    
+    global material, air, running, time, posx, posy, vx, vy, altitude, heightAboveSeaLvl, balloon, speedCurve, altitudeCurve, forceCurve, crossSectArea, fluidVol, sizeOfBalloonMass, payloadMass, balloonMass, mass, wind, vx    
     running = False
     startButton.text = "Run"
     enableControls()
@@ -319,6 +323,11 @@ def reset(b):
     
     vx = 0
     vy = 0
+
+    material = "Nylon"
+    materialCaption.text = " Material: Nylon"
+    air = "Air"
+    airCaption.text = " Air: Air"
 
     passengerSlider.value = 2
     sizeOfBalloonSlider.value = 225.25
@@ -334,6 +343,9 @@ def reset(b):
     crossSectArea = 100
     wind = 0
     vx = 0
+
+    materialMenu.selected = "Nylon"
+    airMenu.selected = "Air"
     
     radius = sqrt(crossSectArea / pi)
     fluidVol = (4/3)*pi*radius**3
@@ -389,7 +401,7 @@ def changeMaterial(evt):
         balloon.texture = "https://i.imgur.com/3N4NFBM.jpeg"
         materialDens = 700   # Suede (approx), kg/m^3
     balloonMass = materialDens * pow(fluidVol * (3/4) / pi, (2/3)) * 4 * pi
-    materialCaption.text = evt.selected
+    materialCaption.text = " Material: " + evt.selected
         
 backgroundBox = box(pos = vector(0, 0, -1), size = vector(52, 43, 0.1), texture = "https://i.imgur.com/wHGxacb.png")
 
@@ -426,13 +438,17 @@ while True:
 
         newRadius = pow(((3/4) * newFluidVol / pi),(1/3))
         totalCrossSectionalArea = pi * newRadius ** 2
-        
+            
+        distanceToCenter = planetRadius + posy
         velocity = sqrt(vx**2 + vy**2)
-        airPressureOut = (pressureAtSeaLevel)*(exp((-(molarMass)*gravity*heightAboveSeaLvl)/(8.314 * (airTemperature)))) #Pascals
-        fluidDensOut = (airPressureOut)/((287.058)*(airTemperature)) #kg/m^3
 
-        airPressureIn = (pressureAtSeaLevel)*(exp(-(molarMass)*gravity*heightAboveSeaLvl)/(8.314 * (tempOfFlameSlider.value + 273.15))) #Pascals
-        fluidDensIn = (airPressureIn)/((287.058)*(tempOfFlameSlider.value + 273.15)) #kg/m^3
+        newGravity = (gravitationalC * planetMass) / (distanceToCenter ** 2)
+
+        airPressureOut = (pressureAtSeaLevel)*(exp((-(molarMass)*newGravity*heightAboveSeaLvl)/(8.314 * (airTemperature)))) #Pascals
+        fluidDensOut = (airPressureOut)/((speccAirConst)*(airTemperature)) #kg/m^3
+
+        airPressureIn = (pressureAtSeaLevel)*(exp(-(molarMass)*newGravity*heightAboveSeaLvl)/(8.314 * (tempOfFlameSlider.value + 273.15))) #Pascals
+        fluidDensIn = (airPressureIn)/((speccAirConst)*(tempOfFlameSlider.value + 273.15)) #kg/m^3
 
         fluidDensDiff = fluidDensOut - fluidDensIn
             
@@ -444,7 +460,6 @@ while True:
             dragXForce = 0
             dragYForce = 0
         
-        distanceToCenter = planetRadius + posy
         
         gravForce = mass * gravitationalC * planetMass / (distanceToCenter ** 2)
         buoForce = (fluidDensDiff) * gravity * newFluidVol  # archimedes principle
