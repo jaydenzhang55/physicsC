@@ -86,10 +86,12 @@ def setPlanet(p):
         if i != p.i:
             buttons[i].checked = False
 
+backgroundBox = box(pos = vector(0, 0, -1), size = vector(52, 43, 0.1), texture = "https://i.imgur.com/nmIABNm.png")
+
 def setDefaults(x):
-    global fluidDens, airTemperature, dragCoeff, planetMass, air, planetRadius
+    global fluidDens, airTemperature, dragCoeff, planetMass, air, planetRadius, backgroundBox
     if x == "Earth":
-        backgroundPic = "https://i.imgur.com/wHGxacb.png"
+        backgroundBox = box(pos = vector(0, 0, -1), size = vector(52, 43, 0.1), texture = "https://i.imgur.com/nmIABNm.png") 
         fluidDens = 1.225 #at 1 bar
         airTemperature = 273.15 #Kelvin at 1 bar
         dragCoeff = 0.5 #based on Atlas rocket https://web.archive.org/web/20170313142729/http://www.braeunig.us/apollo/saturnV.htm
@@ -97,7 +99,7 @@ def setDefaults(x):
         planetRadius = 6378 * 10 ** 3
         air = 'Air'
     elif x == "Saturn": #done
-        backgroundPic = "mars.png"
+        backgroundBox = box(pos = vector(0, 0, -1), size = vector(52, 43, 0.1), texture = "https://i.imgur.com/wJ2AoI3.png") 
         fluidDens = 0.19 #at 1 bar
         airTemperature = 134 #Kelvin at 1 bar
         dragCoeff = 0.515 #based on Atlas rocket https://web.archive.org/web/20170313142729/http://www.braeunig.us/apollo/saturnV.htm
@@ -105,7 +107,7 @@ def setDefaults(x):
         planetRadius = 60268*10**3
         air = 'Helium'
     elif x == "Venus": #done
-        backgroundPic = "mars.png"
+        backgroundBox = box(pos = vector(0, 0, -1), size = vector(52, 43, 0.1), texture = "https://i.imgur.com/qYCd7PI.png") 
         fluidDens = 65 #kg/m^3 at surface - would be much lower at 1 bar
         airTemperature = 301.5 #Kelvin at 1 bar
         dragCoeff = 2 #between 1.7-2.3
@@ -113,7 +115,7 @@ def setDefaults(x):
         planetRadius = 6052*10**3
         air = 'Carbon Dioxide'
     elif x == "Mars":
-        backgroundPic = "mars.png"
+        backgroundBox = box(pos = vector(0, 0, -1), size = vector(52, 43, 0.1), texture = "https://i.imgur.com/LBzuKqf.png") 
         fluidDens = 0.020      # kg/m³ @ surface (~0.006 bar)
         airTemperature = 210.0      # K  (–63 °C), no 1 bar level exists
         dragCoeff = 0.3
@@ -121,7 +123,7 @@ def setDefaults(x):
         planetRadius = 3396 * 10**3
         air = "Carbon Dioxide"
     elif x == "Jupiter":
-        backgroundPic = "jupiter.png"
+        backgroundBox = box(pos = vector(0, 0, -1), size = vector(52, 43, 0.1), texture = "https://i.imgur.com/X4KWj52.png") 
         fluidDens = 0.16       # kg/m³ @ 1 bar
         airTemperature = 165.0      # K  (–108 °C)
         dragCoeff = 0.47
@@ -129,7 +131,7 @@ def setDefaults(x):
         planetRadius = 71492*10**3
         air = "Helium"
     elif x == "Neptune":
-        backgroundPic = "neptune.png"
+        backgroundBox = box(pos = vector(0, 0, -1), size = vector(52, 43, 0.1), texture = "https://i.imgur.com/SOK1EPe.png") 
         fluidDens = 0.45       # kg/m³ @ 1 bar
         airTemperature = 72.0       # K  (–201 °C)
         dragCoeff = 0.47
@@ -137,7 +139,7 @@ def setDefaults(x):
         planetRadius = 24764 * 10**3
         air = "Helium"
     elif x == "Uranus":
-        backgroundPic = "uranus.png"
+        backgroundBox = box(pos = vector(0, 0, -1), size = vector(52, 43, 0.1), texture = "https://i.imgur.com/YabrZbf.png") 
         fluidDens = 0.22       # kg/m³ @ 1 bar
         airTemperature = 76.0       # K  (–197 °C)
         dragCoeff = 0.47
@@ -478,7 +480,6 @@ def changeMaterial(evt):
     mass = balloonMass + payloadMass + sizeOfBalloonMass
     materialCaption.text = " Material: " + evt.selected
         
-backgroundBox = box(pos = vector(0, 0, -1), size = vector(52, 43, 0.1), texture = "https://i.imgur.com/wHGxacb.png")
 
 time = 0; dt=0.01
 
