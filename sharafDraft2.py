@@ -270,7 +270,14 @@ def reset(b):
 startButton = button(text = "Run", pos = scene.title_anchor, bind = start)
 resetButton = button(text = "Reset", pos = scene.title_anchor, bind = reset)
 
-balloon = sphere(pos = vec(0, altitude - 18, 0), radius = sqrt(totalCrossSectionalArea/pi) / 50, color = color.blue)
+balloonTop = sphere(pos = vector(0, 4, 0), radius = sqrt(totalCrossSectionalArea/pi) / 5, color = color.red)
+balloonBottom = box(pos = vector(0, 0 , 0), length = 1.25, height = 0.75, width = 1.25, color = color.gray(0.5))
+ropeOne = cylinder(pos=vector(0.5,0,0.5), axis = vector(0,3.5,0), radius = 0.02, color = vector (0.367, 0.295, 0))
+ropeTwo = cylinder(pos=vector(-0.5,0,0.5), axis = vector(0,3.5,0), radius = 0.02, color = vector (0.367, 0.295, 0))
+ropeThree = cylinder(pos=vector(0.5,0,-0.5), axis = vector(0,3.5,0), radius = 0.02, color = vector (0.367, 0.295, 0))
+ropeFour = cylinder(pos=vector(-0.5,0,-0.5), axis = vector(0,3.5,0), radius = 0.02, color = vector (0.367, 0.295, 0))
+
+balloon = compound([balloonTop, balloonBottom, ropeOne, ropeTwo, ropeThree, ropeFour], pos = vec(0, altitude - 18, 0))
 #attach_arrow(balloon, "velocity", color=color.green, scale=10, shaftwidth=balloon.radius/3)
 scene.center = balloon.pos
 
