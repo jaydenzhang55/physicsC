@@ -1,9 +1,13 @@
 Web VPython 3.2
 
-scene = canvas(width=600, height=600)
+scene = canvas(width=1450, height=600)
+scene.append_to_title('<h1 style="margin-top:20px; text-align:center"><i>Hot</i> AIR BALLOON!</h1>')
+
+startButton = button(text = "Run", pos = scene.caption_anchor, bind = start)
+resetButton = button(text = "Reset", pos = scene.caption_anchor, bind = reset)
 
 scene.container = "left"
-scene.append_to_caption('<h3 style="margin-top:20px;">Balloon Parameters</h3>')
+scene.append_to_caption('<h3 style="margin-top:5px; text-align:center">Balloon Parameters</h3>')
 
 scene.userzoom = False
 scene.userspin = True
@@ -17,7 +21,7 @@ vx = 0
 vy = 0
 velocity = 0
 dragCoeff = 0.5
-crossSectArea = 467 #pi*r^2
+crossSectArea = 222.25 #pi*r^2
 airPressure = 101325 # Pa
 balloonMass = 350
 payloadMass = 124 #kg (one person = 62kg)
@@ -33,13 +37,16 @@ wind = 0
 homePlanet = "Earth"
 pressureAtSeaLevel = 101325
 molarMass = 0.028965
-flameTemperature = 225 + 273.15 #Kelvin
+flameTemperature = 100 + 273.15 #Kelvin
 numberOfMoles = (fluidVol * fluidDens / 1000) / 28.965
 massOfAir = fluidVol * fluidDens / 1000 # in g
 planetMass = 5.97219 * (10 ** 24)
-crossSectAreaDueToTemp = 0
-totalCrossSectionalArea = crossSectArea + crossSectAreaDueToTemp
-newFluidVol = fluidVol * ((273.15) / airTemperature)   
+newFluidVol = fluidVol * ((100 + 273.15) / airTemperature)   
+totalCrossSectionalArea = pi * pow(((3/4) * newFluidVol / pi),(1/3)) ** 3
+crossSectAreaDueToTemp = totalCrossSectionalArea - crossSectArea
+gravitationalC = 6.6743 * 10 ** -11
+planetMass = 5.97219 * 10 ** 24
+planetRadius = 6378 * 10 ** 3
 
 # variables: fluid density, velocity, drag coefficient, cross sectional area, mass, gravity, fluid volume, altitude
 
@@ -64,13 +71,14 @@ def setPlanet(p):
             buttons[i].checked = False
 
 def setDefaults(x):
-    global fluidDens, airTemperature, dragCoeff, planetMass, air
+    global fluidDens, airTemperature, dragCoeff, planetMass, air, planetRadius
     if x == "Earth":
         backgroundPic = "https://i.imgur.com/wHGxacb.png"
         fluidDens = 1.225 #at 1 bar
         airTemperature = 273.15 #Kelvin at 1 bar
         dragCoeff = 0.5 #based on Atlas rocket https://web.archive.org/web/20170313142729/http://www.braeunig.us/apollo/saturnV.htm
         planetMass = 5.97219 * (10 ** 24)
+        planetRadius = 6378 * 10 ** 3
         air = 'Air'
     elif x == "Saturn": #done
         backgroundPic = "mars.png"
@@ -78,6 +86,7 @@ def setDefaults(x):
         airTemperature = 134 #Kelvin at 1 bar
         dragCoeff = 0.515 #based on Atlas rocket https://web.archive.org/web/20170313142729/http://www.braeunig.us/apollo/saturnV.htm
         planetMass = 5.684*10**26
+        planetRadius = 60268*10**3
         air = 'Helium'
     elif x == "Venus": #done
         backgroundPic = "mars.png"
@@ -85,34 +94,39 @@ def setDefaults(x):
         airTemperature = 301.5 #Kelvin at 1 bar
         dragCoeff = 2 #between 1.7-2.3
         planetMass = 4.8673*10**24
+        planetRadius = 6052*10**3
         air = 'Carbon Dioxide'
     elif x == "Mars":
         backgroundPic = "mars.png"
         fluidDens = 0.020      # kg/m³ @ surface (~0.006 bar)
         airTemperature = 210.0      # K  (–63 °C), no 1 bar level exists
         dragCoeff = 0.3
-        planetMass = 6.4171e23  # kg
+        planetMass = 6.4171* 10 ** 23  # kg
+        planetRadius = 3396 * 10**3
         air = "Carbon Dioxide"
     elif x == "Jupiter":
         backgroundPic = "jupiter.png"
         fluidDens = 0.16       # kg/m³ @ 1 bar
         airTemperature = 165.0      # K  (–108 °C)
         dragCoeff = 0.47
-        planetMass = 1.8982e27  # kg
+        planetMass = 1.8982 * 10 ** 27  # kg
+        planetRadius = 71492*10**3
         air = "Helium"
     elif x == "Neptune":
         backgroundPic = "neptune.png"
         fluidDens = 0.45       # kg/m³ @ 1 bar
         airTemperature = 72.0       # K  (–201 °C)
         dragCoeff = 0.47
-        planetMass = 1.02413e26 # kg
+        planetMass = 1.02413* 10 ** 26 # kg
+        planetRadius = 24764 * 10**3
         air = "Helium"
     elif x == "Uranus":
         backgroundPic = "uranus.png"
         fluidDens = 0.22       # kg/m³ @ 1 bar
         airTemperature = 76.0       # K  (–197 °C)
         dragCoeff = 0.47
-        planetMass = 8.6810e25  # kg
+        planetMass = 8.6810 * 10 ** 25  # kg
+        planetRadius = 25559 * 10 ** 3
         air = "Helium"
     backgroundBox.texture = backgroundPic
         
@@ -143,6 +157,7 @@ def changeAir(evt): # stp
     
     massOfAir = fluidVol * fluidDens / 1000
     numberOfMoles = massOfAir / molarMass
+    airCaption.text = air
 
 venusRadio = radio(bind=setPlanet, text = "Venus", i = 0, plan = "Venus")
 marsRadio = radio(bind=setPlanet, text = "Mars", i = 1, plan = "Mars")
@@ -171,34 +186,38 @@ numPassengersValueDisplay = wtext(text = str(passengerSlider.value))
 
 scene.append_to_caption('<div id="right">')
 scene.append_to_caption('<div style="margin-bottom: 15px;">')
-sizeOfBalloonSlider = slider(bind = balloonSize, min = 150, max = 1000, value = 222)
+sizeOfBalloonSlider = slider(bind = balloonSize, min = 150, max = 1000, value = 222.25, step = 0.25)
 scene.append_to_caption('</div>')
 
-def balloonSize(s):
-    global crossSectArea, mass, fluidVol, sizeOfBalloonMass, payloadMass, balloonMass
+def balloonSize():
+    global crossSectArea, mass, fluidVol, sizeOfBalloonMass, payloadMass, balloonMass, totalCrossSectionalArea, balloon
     crossSectArea = sizeOfBalloonSlider.value
     balloonSizeValueDisplay.text = str(sizeOfBalloonSlider.value)
     radius = sqrt(crossSectArea / pi)
     fluidVol = (4/3)*pi*radius**3
     sizeOfBalloonMass = fluidDens * fluidVol
     mass = sizeOfBalloonMass + payloadMass + balloonMass
+    changeTemp()
+    balloon = createBalloon(sqrt(totalCrossSectionalArea/pi) / 8)
 
 balloonSizeTextDisplay = wtext(text = 'Cross Sectional Area of Balloon (m^2) = ')
 balloonSizeValueDisplay = wtext(text = str(sizeOfBalloonSlider.value))
     
 scene.append_to_caption('<div id="right">')
 scene.append_to_caption('<div style="margin-bottom: 15px;">')
-tempOfFlameSlider = slider(bind = changeTemp, min = 0, max = 350, value = 100)
+tempOfFlameSlider = slider(bind = changeTemp, min = 0, max = 350, value = 100, step = 0.01)
 scene.append_to_caption('</div>')
 
-def changeTemp(s):
-    global flameTemperature, fluidVol, crossSectAreaDueToTemp, totalCrossSectionalArea, crossSectArea, newFluidVol
+def changeTemp():
+    global flameTemperature, fluidVol, crossSectAreaDueToTemp, totalCrossSectionalArea, crossSectArea, newFluidVol, balloon
     flameTemperature = tempOfFlameSlider.value
     tempOfFlameValueDisplay.text = str(tempOfFlameSlider.value)
     newFluidVol = fluidVol * ((tempOfFlameSlider.value + 273.15) / airTemperature)    
     newRadius = pow(((3/4) * newFluidVol / pi),(1/3))
     totalCrossSectionalArea = pi * newRadius ** 2
     crossSectAreaDueToTemp = totalCrossSectionalArea - crossSectArea
+
+    balloon = createBalloon(sqrt(totalCrossSectionalArea/pi) / 8)
 
 tempOfFlameTextDisplay = wtext(text = 'Temperature of Flame (°C) = ')
 tempOfFlameValueDisplay = wtext(text = str(tempOfFlameSlider.value))
@@ -214,7 +233,7 @@ def changeWind(s):
     vx = wind * 1000/3600
     windValueDisplay.text = str(windSlider.value)
 
-windTextDisplay = wtext(text = 'Wind Speed (km/h) = ')
+windTextDisplay = wtext(text = 'Wind (km/h) = ')
 windValueDisplay = wtext(text = str(windSlider.value))
 scene.append_to_caption('<div></div>')
 
@@ -222,29 +241,75 @@ choicelist = ['Nylon', 'Polyester',
              'Wicker', 'Stainless steel', 'Copper', 'Aluminum', 
              'Plastic', 'Leather', 'Suede']
 
-menu(choices=choicelist, bind=changeMaterial)
-windCaption = wtext(text = ' Material: ' + material + ' ')
+materialMenu = menu(choices=choicelist, bind=changeMaterial)
+materialCaption = wtext(text = ' Material: ' + material + ' ')
 scene.append_to_caption('<div></div>')
 
 airList = ['Air', 'Hydrogen', 'Nitrogen', 'Helium', 'Oxygen', 'Carbon Dioxide', 'Tungsten hexafluoride']
 
-menu(choices=airList, bind=changeAir)
+airMenu = menu(choices=airList, bind=changeAir)
 airCaption = wtext(text = ' Air: ' + air + " ")
 
 running = False
+
+def createBalloon(radius):
+    global balloonTop, balloonBottom, ropeOne, ropeTwo, ropeThree, ropeFour, balloon
+    
+    if balloon:
+        balloon.visible = False
+        del balloon
+    
+    balloonTop = sphere(pos = vector(0, 4, 0), radius = radius, color = color.red)
+    balloonBottom = box(pos = vector(0, 0 , 0), length = 1.25, height = 0.75, width = 1.25, color = color.gray(0.5))
+    ropeOne = cylinder(pos=vector(0.5,0,0.5), axis = vector(0,3.5,0), radius = 0.02, color = vector (0.367, 0.295, 0))
+    ropeTwo = cylinder(pos=vector(-0.5,0,0.5), axis = vector(0,3.5,0), radius = 0.02, color = vector (0.367, 0.295, 0))
+    ropeThree = cylinder(pos=vector(0.5,0,-0.5), axis = vector(0,3.5,0), radius = 0.02, color = vector (0.367, 0.295, 0))
+    ropeFour = cylinder(pos=vector(-0.5,0,-0.5), axis = vector(0,3.5,0), radius = 0.02, color = vector (0.367, 0.295, 0))
+    
+    balloon = compound([balloonTop, balloonBottom, ropeOne, ropeTwo, ropeThree, ropeFour], pos = vector(0, altitude, 0))
+    return balloon
+
+def enableControls():
+    startButton.disabled = False
+    passengerSlider.disabled = False
+    sizeOfBalloonSlider.disabled = False
+    tempOfFlameSlider.disabled = False
+    windSlider.disabled = False
+    materialMenu.disabled = False
+    airMenu.disabled = False
+    for button in buttons:
+        button.disabled = False
+
+def disableControls():
+    startButton.disabled = True
+    passengerSlider.disabled = True
+    sizeOfBalloonSlider.disabled = True
+    tempOfFlameSlider.disabled = True
+    windSlider.disabled = True
+    materialMenu.disabled = True
+    airMenu.disabled = True
+    for button in buttons:
+        button.disabled = True
 
 def start(b):
     global running
     running = True
     if running: 
+        print(sqrt(totalCrossSectionalArea/pi) / 8)
+        print(flameTemperature)
+        print(crossSectArea)
+        print(crossSectAreaDueToTemp)
         startButton.text = "Running"
+        disableControls()
     else: 
         startButton.text = "Run"
+        enableControls()
 
 def reset(b):
-    global running, time, posx, posy, vx, vy, altitude, heightAboveSeaLvl, balloon, speedCurve, altitudeCurve, forceCurve
+    global running, time, posx, posy, vx, vy, altitude, heightAboveSeaLvl, balloon, speedCurve, altitudeCurve, forceCurve, crossSectArea, fluidVol, sizeOfBalloonMass, payloadMass, balloonMass, mass, wind, vx    
     running = False
     startButton.text = "Run"
+    enableControls()
     
     time = 0
     altitude = -16.25
@@ -254,9 +319,31 @@ def reset(b):
     
     vx = 0
     vy = 0
+
+    passengerSlider.value = 2
+    sizeOfBalloonSlider.value = 225.25
+    tempOfFlameSlider.value = 100
+    windSlider.value = 0
     
-    balloon.pos = vec(0, altitude, 0)
-    scene.center = balloon.pos
+    numPassengersValueDisplay.text = str(passengerSlider.value)
+    balloonSizeValueDisplay.text = str(sizeOfBalloonSlider.value)
+    tempOfFlameValueDisplay.text = str(tempOfFlameSlider.value)
+    windValueDisplay.text = str(windSlider.value)
+    
+    payloadMass = 2 * 62  
+    crossSectArea = 100
+    wind = 0
+    vx = 0
+    
+    radius = sqrt(crossSectArea / pi)
+    fluidVol = (4/3)*pi*radius**3
+    sizeOfBalloonMass = fluidVol * fluidDens
+    mass = balloonMass + payloadMass + sizeOfBalloonMass
+
+    balloonSize()
+    
+    balloon = createBalloon(sqrt(totalCrossSectionalArea/pi) / 8)
+    scene.center = vector(balloon.pos.x, balloon.pos.y + 5.2, 0)
     
     speedCurve.delete()
     altitudeCurve.delete() 
@@ -265,21 +352,11 @@ def reset(b):
     speedCurve = gcurve(graph=speedVsTime, color=color.red)
     altitudeCurve = gcurve(graph=altitudeVsTime, color=color.green)
     forceCurve = gcurve(graph=forceVsTime, color=color.blue)
-    
-    
-startButton = button(text = "Run", pos = scene.title_anchor, bind = start)
-resetButton = button(text = "Reset", pos = scene.title_anchor, bind = reset)
 
-balloonTop = sphere(pos = vector(0, 4, 0), radius = sqrt(totalCrossSectionalArea/pi) / 5, color = color.red)
-balloonBottom = box(pos = vector(0, 0 , 0), length = 1.25, height = 0.75, width = 1.25, color = color.gray(0.5))
-ropeOne = cylinder(pos=vector(0.5,0,0.5), axis = vector(0,3.5,0), radius = 0.02, color = vector (0.367, 0.295, 0))
-ropeTwo = cylinder(pos=vector(-0.5,0,0.5), axis = vector(0,3.5,0), radius = 0.02, color = vector (0.367, 0.295, 0))
-ropeThree = cylinder(pos=vector(0.5,0,-0.5), axis = vector(0,3.5,0), radius = 0.02, color = vector (0.367, 0.295, 0))
-ropeFour = cylinder(pos=vector(-0.5,0,-0.5), axis = vector(0,3.5,0), radius = 0.02, color = vector (0.367, 0.295, 0))
+changeTemp()  
+balloon = createBalloon(sqrt(totalCrossSectionalArea/pi) / 8)
 
-balloon = compound([balloonTop, balloonBottom, ropeOne, ropeTwo, ropeThree, ropeFour], pos = vec(0, altitude, 0))
 #attach_arrow(balloon, "velocity", color=color.green, scale=10, shaftwidth=balloon.radius/3)
-scene.center = balloon.pos
 
 def changeMaterial(evt):
     global balloonMass, fluidVol
@@ -312,8 +389,9 @@ def changeMaterial(evt):
         balloon.texture = "https://i.imgur.com/3N4NFBM.jpeg"
         materialDens = 700   # Suede (approx), kg/m^3
     balloonMass = materialDens * pow(fluidVol * (3/4) / pi, (2/3)) * 4 * pi
+    materialCaption.text = evt.selected
         
-backgroundBox = box(pos = vector(0, 0, -1), size = vector(40, 40, 0.1), texture = "https://i.imgur.com/wHGxacb.png")
+backgroundBox = box(pos = vector(0, 0, -1), size = vector(52, 43, 0.1), texture = "https://i.imgur.com/wHGxacb.png")
 
 time = 0; dt=0.01
 
@@ -325,31 +403,30 @@ ay = 0
 ax = 0
 
 balloon.velocity = 0
+scene.center = vector(balloon.pos.x, balloon.pos.y + 5.2, 0)
     
-speedVsTime = graph(title = 'Speed vs Time', xtitle = 'Time (s)', ytitle = 'Speed (m/s)', xmin = 0, ymin = 0, width=380, height=180)
-altitudeVsTime = graph(title = 'Altitude vs Time', xtitle = 'Time (s)', ytitle = 'Altitude (m)', xmin = 0, ymin = 0, width=380, height=180)
-forceVsTime = graph(title='Net Force vs Time', xtitle='Time (s)', ytitle='Force (N)', xmin=0, width=380, height=180)    
+speedVsTime = graph(title = 'Speed vs Time', xtitle = 'Time (s)', ytitle = 'Speed (m/s)', xmin = 0, ymin = 0, width=380, height=180, align='left')
+altitudeVsTime = graph(title = 'Altitude vs Time', xtitle = 'Time (s)', ytitle = 'Altitude (m)', xmin = 0, ymin = 0, width=380, height=180, align='left')
+forceVsTime = graph(title='Net Force vs Time', xtitle='Time (s)', ytitle='Force (N)', xmin=0, width=380, height=180, align='left')    
 
 speedCurve = gcurve(graph=speedVsTime, color=color.red)
 altitudeCurve = gcurve(graph=altitudeVsTime, color=color.green)
 forceCurve = gcurve(graph=forceVsTime, color=color.blue)
 
 while True:
-    global velocity, airPressure, newFluidVol, fluidVol, heightAboveSeaLvl, flameTemperature, fluidDens, dragForce, dragXForce, dragYForce, gravForce, buoForce, totalXForce, totalYForce, ax, ay, viy, vix, vfy, vfx, posxIncr, posyIncr, finalPosX, finalPosY, altitude, vy, vx, posx, posy, time, mass, balloonMass, payloadMass, sizeOfBalloonMass, crossSectArea, crossSectAreaDueToTemp, totalCrossSectionalArea, wind
+    global planetRadius, planetMass, velocity, airPressure, newFluidVol, fluidVol, heightAboveSeaLvl, flameTemperature, fluidDens, dragForce, dragXForce, dragYForce, gravForce, buoForce, totalXForce, totalYForce, ax, ay, viy, vix, vfy, vfx, posxIncr, posyIncr, finalPosX, finalPosY, altitude, vy, vx, posx, posy, time, mass, balloonMass, payloadMass, sizeOfBalloonMass, crossSectArea, crossSectAreaDueToTemp, totalCrossSectionalArea, wind
     
     rate(100)
     if running:        
         hotAirDensity = fluidDens * (airTemperature / (tempOfFlameSlider.value + 273.15))
 
         newFluidVol = fluidVol * ((tempOfFlameSlider.value + 273.15) / airTemperature)    
-#        sizeOfBalloonMass = newFluidVol * hotAirDensity
-#        mass = balloonMass + payloadMass + sizeOfBalloonMass
+        sizeOfBalloonMass = newFluidVol * hotAirDensity
+        mass = balloonMass + payloadMass + sizeOfBalloonMass
 
-#        newRadius = pow(((3/4) * newFluidVol / pi),(1/3))
-#        totalCrossSectionalArea = pi * newRadius ** 2
+        newRadius = pow(((3/4) * newFluidVol / pi),(1/3))
+        totalCrossSectionalArea = pi * newRadius ** 2
         
-        balloon.radius = (sqrt(totalCrossSectionalArea/pi) / 5)
-
         velocity = sqrt(vx**2 + vy**2)
         airPressureOut = (pressureAtSeaLevel)*(exp((-(molarMass)*gravity*heightAboveSeaLvl)/(8.314 * (airTemperature)))) #Pascals
         fluidDensOut = (airPressureOut)/((287.058)*(airTemperature)) #kg/m^3
@@ -367,7 +444,9 @@ while True:
             dragXForce = 0
             dragYForce = 0
         
-        gravForce = mass * gravity
+        distanceToCenter = planetRadius + posy
+        
+        gravForce = mass * gravitationalC * planetMass / (distanceToCenter ** 2)
         buoForce = (fluidDensDiff) * gravity * newFluidVol  # archimedes principle
     
         totalXForce = dragXForce
@@ -402,7 +481,7 @@ while True:
         finalPosX = posx + posxIncr
         finalPosY = posy + posyIncr
     
-        balloon.pos = vec(finalPosX, finalPosY, 0)
+        balloon.pos = vector(finalPosX, finalPosY, 0)
         
         altitude = finalPosY
         posx = finalPosX
@@ -415,9 +494,30 @@ while True:
         altitudeCurve.plot(time, posy + 16.25)
         forceCurve.plot(time, totalForceFinal)
         
-        scene.center = balloon.pos
+        if posy >= -10:
+            scene.center = balloon.pos
+        elif posy <= 10 and (posx < -5 or posx > 5):
+            scene.center =  vector(balloon.pos.x, balloon.pos.y + 5.2, 0)
 
         heightAboveSeaLvl = altitude
+
+        if posy < -18:
+            result = confirm("Balloon has crashed! Would you like to restart?")
+        elif posy > planetRadius:
+            result = confirm("Balloon has lifted out of this world! Would you like to restart?")
+
+        if result:
+            reset(None)
         
         time += dt
-            
+    else:
+        hotAirDensity = fluidDens * (airTemperature / (tempOfFlameSlider.value + 273.15))
+
+        newFluidVol = fluidVol * ((tempOfFlameSlider.value + 273.15) / airTemperature)    
+        sizeOfBalloonMass = newFluidVol * hotAirDensity
+        mass = balloonMass + payloadMass + sizeOfBalloonMass
+
+        newRadius = pow(((3/4) * newFluidVol / pi),(1/3))
+        totalCrossSectionalArea = pi * newRadius ** 2
+        balloonTop.radius = (sqrt(totalCrossSectionalArea/pi) / 8)
+
