@@ -247,7 +247,7 @@ def reset(b):
     startButton.text = "Run"
     
     time = 0
-    altitude = -20
+    altitude = -16.25
     heightAboveSeaLvl = 0
     posx = 0
     posy = altitude
@@ -256,6 +256,7 @@ def reset(b):
     vy = 0
     
     balloon.pos = vec(0, altitude, 0)
+    scene.center = balloon.pos
     
     speedCurve.delete()
     altitudeCurve.delete() 
@@ -336,18 +337,18 @@ forceCurve = gcurve(graph=forceVsTime, color=color.blue)
 while True:
     global velocity, airPressure, newFluidVol, fluidVol, heightAboveSeaLvl, flameTemperature, fluidDens, dragForce, dragXForce, dragYForce, gravForce, buoForce, totalXForce, totalYForce, ax, ay, viy, vix, vfy, vfx, posxIncr, posyIncr, finalPosX, finalPosY, altitude, vy, vx, posx, posy, time, mass, balloonMass, payloadMass, sizeOfBalloonMass, crossSectArea, crossSectAreaDueToTemp, totalCrossSectionalArea, wind
     
-    rate(1/dt)
+    rate(100)
     if running:        
         hotAirDensity = fluidDens * (airTemperature / (tempOfFlameSlider.value + 273.15))
 
         newFluidVol = fluidVol * ((tempOfFlameSlider.value + 273.15) / airTemperature)    
-        sizeOfBalloonMass = newFluidVol * hotAirDensity
-        mass = balloonMass + payloadMass + sizeOfBalloonMass
+#        sizeOfBalloonMass = newFluidVol * hotAirDensity
+#        mass = balloonMass + payloadMass + sizeOfBalloonMass
 
-        newRadius = pow(((3/4) * newFluidVol / pi),(1/3))
-        totalCrossSectionalArea = pi * newRadius ** 2
+#        newRadius = pow(((3/4) * newFluidVol / pi),(1/3))
+#        totalCrossSectionalArea = pi * newRadius ** 2
         
-        balloon.radius = (sqrt(totalCrossSectionalArea/pi) / 50)
+        balloon.radius = (sqrt(totalCrossSectionalArea/pi) / 5)
 
         velocity = sqrt(vx**2 + vy**2)
         airPressureOut = (pressureAtSeaLevel)*(exp((-(molarMass)*gravity*heightAboveSeaLvl)/(8.314 * (airTemperature)))) #Pascals
