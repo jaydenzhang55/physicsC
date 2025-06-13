@@ -47,7 +47,8 @@ crossSectAreaDueToTemp = totalCrossSectionalArea - crossSectArea
 gravitationalC = 6.6743 * 10 ** -11
 planetMass = 5.97219 * 10 ** 24
 planetRadius = 6378 * 10 ** 3
-speccAirConst = 287.058
+speccAirConst = 287.058    
+materialDens = 1150
 
 # variables: fluid density, velocity, drag coefficient, cross sectional area, mass, gravity, fluid volume, altitude
 
@@ -309,8 +310,8 @@ def start(b):
         startButton.text = "Run"
         enableControls()
 
-def reset(b):
-    global material, air, running, time, posx, posy, vx, vy, altitude, heightAboveSeaLvl, balloon, speedCurve, altitudeCurve, forceCurve, crossSectArea, fluidVol, sizeOfBalloonMass, payloadMass, balloonMass, mass, wind, vx    
+def reset():
+    global materialDens, material, air, running, time, posx, posy, vx, vy, altitude, heightAboveSeaLvl, balloon, speedCurve, altitudeCurve, forceCurve, crossSectArea, fluidVol, sizeOfBalloonMass, payloadMass, balloonMass, mass, wind, vx    
     running = False
     startButton.text = "Run"
     enableControls()
@@ -343,6 +344,7 @@ def reset(b):
     crossSectArea = 100
     wind = 0
     vx = 0
+    materialDens = 1150
 
     materialMenu.selected = "Nylon"
     airMenu.selected = "Air"
@@ -353,6 +355,7 @@ def reset(b):
     mass = balloonMass + payloadMass + sizeOfBalloonMass
 
     balloonSize()
+    changeMaterial()
     
     balloon = createBalloon(sqrt(totalCrossSectionalArea/pi) / 8)
     scene.center = vector(balloon.pos.x, balloon.pos.y + 5.2, 0)
@@ -371,8 +374,7 @@ balloon = createBalloon(sqrt(totalCrossSectionalArea/pi) / 8)
 #attach_arrow(balloon, "velocity", color=color.green, scale=10, shaftwidth=balloon.radius/3)
 
 def changeMaterial(evt):
-    global balloonMass, fluidVol
-    materialDens = 0
+    global balloonMass, fluidVol, materialDens
     if evt.index < 1:
         balloon.texture = "https://i.imgur.com/YwqXpCA.jpeg"
         materialDens = 1150  # Nylon, kg/m^3
@@ -460,7 +462,6 @@ while True:
             dragXForce = 0
             dragYForce = 0
         
-        
         gravForce = mass * gravitationalC * planetMass / (distanceToCenter ** 2)
         buoForce = (fluidDensDiff) * gravity * newFluidVol  # archimedes principle
     
@@ -518,11 +519,11 @@ while True:
 
         if posy < -18:
             result = confirm("Balloon has crashed! Would you like to restart?")
-        elif posy > planetRadius:
+        elif posy > (0.02 * planetRadius):
             result = confirm("Balloon has lifted out of this world! Would you like to restart?")
 
         if result:
-            reset(None)
+            reset()
         
         time += dt
     else:
