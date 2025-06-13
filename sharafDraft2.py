@@ -188,7 +188,7 @@ balloonSizeValueDisplay = wtext(text = str(sizeOfBalloonSlider.value))
     
 scene.append_to_caption('<div id="right">')
 scene.append_to_caption('<div style="margin-bottom: 15px;">')
-tempOfFlameSlider = slider(bind = changeTemp, min = 0, max = 350, value = 225)
+tempOfFlameSlider = slider(bind = changeTemp, min = 0, max = 350, value = 100)
 scene.append_to_caption('</div>')
 
 def changeTemp(s):
@@ -378,7 +378,7 @@ while True:
         print("buo" + buoForce)
         print("grav" + gravForce)
         print("drag" + dragYForce)
-    
+        print("densdiff" + fluidDensDiff)
         print(totalYForce)
         print(posy)
             
