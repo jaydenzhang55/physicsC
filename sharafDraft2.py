@@ -76,9 +76,9 @@ def setDefaults(x):
     global fluidDens, airTemperature, dragCoeff, planetMass, air, planetRadius
     if x == "Earth":
         backgroundPic = "https://i.imgur.com/v1IQIPy.png"
-        fluidDens = 1.225 #at 1 bar
-        airTemperature = 273.15 #Kelvin at 1 bar
-        dragCoeff = 0.5 #based on Atlas rocket https://web.archive.org/web/20170313142729/http://www.braeunig.us/apollo/saturnV.htm
+        fluidDens = 1.225
+        airTemperature = 273.15 
+        dragCoeff = 0.5 
         planetMass = 5.97219 * (10 ** 24)
         planetRadius = 6378 * 10 ** 3
         air = 'Air'
