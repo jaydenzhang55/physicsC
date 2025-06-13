@@ -49,6 +49,7 @@ planetMass = 5.97219 * 10 ** 24
 planetRadius = 6378 * 10 ** 3
 speccAirConst = 287.058    
 materialDens = 1150
+result = False
 
 # variables: fluid density, velocity, drag coefficient, cross sectional area, mass, gravity, fluid volume, altitude
 
@@ -75,15 +76,15 @@ def setPlanet(p):
 def setDefaults(x):
     global fluidDens, airTemperature, dragCoeff, planetMass, air, planetRadius
     if x == "Earth":
-        backgroundPic = "https://i.imgur.com/v1IQIPy.png"
-        fluidDens = 1.225
-        airTemperature = 273.15 
-        dragCoeff = 0.5 
+        backgroundPic = "https://i.imgur.com/wHGxacb.png"
+        fluidDens = 1.225 #at 1 bar
+        airTemperature = 273.15 #Kelvin at 1 bar
+        dragCoeff = 0.5 #based on Atlas rocket https://web.archive.org/web/20170313142729/http://www.braeunig.us/apollo/saturnV.htm
         planetMass = 5.97219 * (10 ** 24)
         planetRadius = 6378 * 10 ** 3
         air = 'Air'
     elif x == "Saturn": #done
-        backgroundPic = "https://i.imgur.com/ONgh9aA.png"
+        backgroundPic = "mars.png"
         fluidDens = 0.19 #at 1 bar
         airTemperature = 134 #Kelvin at 1 bar
         dragCoeff = 0.515 #based on Atlas rocket https://web.archive.org/web/20170313142729/http://www.braeunig.us/apollo/saturnV.htm
@@ -91,7 +92,7 @@ def setDefaults(x):
         planetRadius = 60268*10**3
         air = 'Helium'
     elif x == "Venus": #done
-        backgroundPic = "https://i.imgur.com/ao1TDhl.png"
+        backgroundPic = "mars.png"
         fluidDens = 65 #kg/m^3 at surface - would be much lower at 1 bar
         airTemperature = 301.5 #Kelvin at 1 bar
         dragCoeff = 2 #between 1.7-2.3
@@ -99,7 +100,7 @@ def setDefaults(x):
         planetRadius = 6052*10**3
         air = 'Carbon Dioxide'
     elif x == "Mars":
-        backgroundPic = "https://i.imgur.com/aFW1iTl.png"
+        backgroundPic = "mars.png"
         fluidDens = 0.020      # kg/m³ @ surface (~0.006 bar)
         airTemperature = 210.0      # K  (–63 °C), no 1 bar level exists
         dragCoeff = 0.3
@@ -107,7 +108,7 @@ def setDefaults(x):
         planetRadius = 3396 * 10**3
         air = "Carbon Dioxide"
     elif x == "Jupiter":
-        backgroundPic = "https://i.imgur.com/kVOR7oH.png"
+        backgroundPic = "jupiter.png"
         fluidDens = 0.16       # kg/m³ @ 1 bar
         airTemperature = 165.0      # K  (–108 °C)
         dragCoeff = 0.47
@@ -115,7 +116,7 @@ def setDefaults(x):
         planetRadius = 71492*10**3
         air = "Helium"
     elif x == "Neptune":
-        backgroundPic = "https://i.imgur.com/PRQPcN6.png"
+        backgroundPic = "neptune.png"
         fluidDens = 0.45       # kg/m³ @ 1 bar
         airTemperature = 72.0       # K  (–201 °C)
         dragCoeff = 0.47
@@ -123,7 +124,7 @@ def setDefaults(x):
         planetRadius = 24764 * 10**3
         air = "Helium"
     elif x == "Uranus":
-        backgroundPic = "https://i.imgur.com/xvepFcP.png"
+        backgroundPic = "uranus.png"
         fluidDens = 0.22       # kg/m³ @ 1 bar
         airTemperature = 76.0       # K  (–197 °C)
         dragCoeff = 0.47
@@ -138,11 +139,11 @@ def changeAir(evt): # stp
     if air == 'Air':
         molarMass = 28.965 #g/mol
         fluidDens = 1.225 #kg/m^3
-        speccAirConst =  287.058
+        speccAirConst = 287.058
     elif air == 'Hydrogen':
         molarMass = 2
         fluidDens = 0.09
-        speccAirConst =  4.1242
+        speccAirConst = 4.1242
     elif air == 'Nitrogen':
         molarMass = 28.02 
         fluidDens = 1.2506 
@@ -311,8 +312,9 @@ def start(b):
         enableControls()
 
 def reset():
-    global materialDens, material, air, running, time, posx, posy, vx, vy, altitude, heightAboveSeaLvl, balloon, speedCurve, altitudeCurve, forceCurve, crossSectArea, fluidVol, sizeOfBalloonMass, payloadMass, balloonMass, mass, wind, vx    
+    global result, materialDens, material, air, running, time, posx, posy, vx, vy, altitude, heightAboveSeaLvl, balloon, speedCurve, altitudeCurve, forceCurve, crossSectArea, fluidVol, sizeOfBalloonMass, payloadMass, balloonMass, mass, wind, vx    
     running = False
+    result = False
     startButton.text = "Run"
     enableControls()
     
@@ -324,6 +326,8 @@ def reset():
     
     vx = 0
     vy = 0
+
+
 
     material = "Nylon"
     materialCaption.text = " Material: Nylon"
@@ -344,18 +348,19 @@ def reset():
     crossSectArea = 100
     wind = 0
     vx = 0
-    materialDens = 1150
 
     materialMenu.selected = "Nylon"
     airMenu.selected = "Air"
     
     radius = sqrt(crossSectArea / pi)
     fluidVol = (4/3)*pi*radius**3
+    materialDens = 1150
+    balloonMass = materialDens * pow(fluidVol * (3/4) / pi, (2/3)) * 4 * pi
+
     sizeOfBalloonMass = fluidVol * fluidDens
     mass = balloonMass + payloadMass + sizeOfBalloonMass
 
     balloonSize()
-    changeMaterial()
     
     balloon = createBalloon(sqrt(totalCrossSectionalArea/pi) / 8)
     scene.center = vector(balloon.pos.x, balloon.pos.y + 5.2, 0)
@@ -375,31 +380,31 @@ balloon = createBalloon(sqrt(totalCrossSectionalArea/pi) / 8)
 
 def changeMaterial(evt):
     global balloonMass, fluidVol, materialDens
-    if evt.index < 1:
+    if evt.selected == "Nylon":
         balloon.texture = "https://i.imgur.com/YwqXpCA.jpeg"
         materialDens = 1150  # Nylon, kg/m^3
-    elif evt.index == 1:
+    elif evt.selected == "Polyester":
         balloon.texture = "https://i.imgur.com/aHf7shx.png"
         materialDens = 1380  # Polyester, kg/m^3
-    elif evt.index == 2:
+    elif evt.selected == "Wicker":
         balloon.texture = "https://i.imgur.com/z1NDKU1.png"
         materialDens = 500   # Wicker (approx), kg/m^3
-    elif evt.index == 3: 
+    elif evt.selected == "Stainless steel": 
         balloon.texture = "https://i.imgur.com/z1NDKU1.png"
         materialDens = 8000  # Stainless steel, kg/m^3
-    elif evt.index == 4: 
+    elif evt.selected == "Copper": 
         balloon.texture = "https://i.imgur.com/FkrZo0R.png"
         materialDens = 8960  # Copper, kg/m^3
-    elif evt.index == 5:
+    elif evt.selected == "Aluminum":
         balloon.texture = "https://i.imgur.com/zEuDPcK.jpeg"
         materialDens = 2700  # Aluminum, kg/m^3
-    elif evt.index == 6:
+    elif evt.selected == "Plastic":
         balloon.texture = "https://i.imgur.com/puph7Hw.jpeg"
         materialDens = 1200  # Plastic (average), kg/m^3
-    elif evt.index == 7:
+    elif evt.selected == "Leather":
         balloon.texture = "https://i.imgur.com/NqIjoHj.jpeg"
         materialDens = 950   # Leather, kg/m^3
-    elif evt.index == 8:
+    elif evt.selected == "Suede":
         balloon.texture = "https://i.imgur.com/3N4NFBM.jpeg"
         materialDens = 700   # Suede (approx), kg/m^3
     balloonMass = materialDens * pow(fluidVol * (3/4) / pi, (2/3)) * 4 * pi
@@ -428,7 +433,7 @@ altitudeCurve = gcurve(graph=altitudeVsTime, color=color.green)
 forceCurve = gcurve(graph=forceVsTime, color=color.blue)
 
 while True:
-    global planetRadius, planetMass, velocity, airPressure, newFluidVol, fluidVol, heightAboveSeaLvl, flameTemperature, fluidDens, dragForce, dragXForce, dragYForce, gravForce, buoForce, totalXForce, totalYForce, ax, ay, viy, vix, vfy, vfx, posxIncr, posyIncr, finalPosX, finalPosY, altitude, vy, vx, posx, posy, time, mass, balloonMass, payloadMass, sizeOfBalloonMass, crossSectArea, crossSectAreaDueToTemp, totalCrossSectionalArea, wind
+    global result, lanetRadius, planetMass, velocity, airPressure, newFluidVol, fluidVol, heightAboveSeaLvl, flameTemperature, fluidDens, dragForce, dragXForce, dragYForce, gravForce, buoForce, totalXForce, totalYForce, ax, ay, viy, vix, vfy, vfx, posxIncr, posyIncr, finalPosX, finalPosY, altitude, vy, vx, posx, posy, time, mass, balloonMass, payloadMass, sizeOfBalloonMass, crossSectArea, crossSectAreaDueToTemp, totalCrossSectionalArea, wind
     
     rate(100)
     if running:        
@@ -536,3 +541,4 @@ while True:
         newRadius = pow(((3/4) * newFluidVol / pi),(1/3))
         totalCrossSectionalArea = pi * newRadius ** 2
         balloonTop.radius = (sqrt(totalCrossSectionalArea/pi) / 8)
+
