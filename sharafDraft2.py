@@ -25,7 +25,7 @@ gravity = 9.80665
 fluidVol = 4/3 * pi * (sqrt(crossSectArea / pi))**3
 sizeOfBalloonMass = fluidVol * fluidDens # massOfAir but in kg
 mass = balloonMass + payloadMass + sizeOfBalloonMass # total mass calculated w/ massOfAir in sizeOfBalloonMass
-altitude = -20
+altitude = -16.25
 heightAboveSeaLvl = 0
 material = 'Nylon'
 air = 'Air'
@@ -411,7 +411,7 @@ while True:
         vx = vfx
         
         speedCurve.plot(time, abs(vfy))
-        altitudeCurve.plot(time, posy + 20)
+        altitudeCurve.plot(time, posy + 16.25)
         forceCurve.plot(time, totalForceFinal)
         
         scene.center = balloon.pos
