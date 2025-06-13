@@ -25,7 +25,7 @@ gravity = 9.80665
 fluidVol = 4/3 * pi * (sqrt(crossSectArea / pi))**3
 sizeOfBalloonMass = fluidVol * fluidDens # massOfAir but in kg
 mass = balloonMass + payloadMass + sizeOfBalloonMass # total mass calculated w/ massOfAir in sizeOfBalloonMass
-altitude = 0
+altitude = -20
 heightAboveSeaLvl = 0
 material = 'Nylon'
 air = 'Air'
@@ -188,7 +188,7 @@ balloonSizeValueDisplay = wtext(text = str(sizeOfBalloonSlider.value))
     
 scene.append_to_caption('<div id="right">')
 scene.append_to_caption('<div style="margin-bottom: 15px;">')
-tempOfFlameSlider = slider(bind = changeTemp, min = 0, max = 350, value = 0)
+tempOfFlameSlider = slider(bind = changeTemp, min = 0, max = 350, value = 225)
 scene.append_to_caption('</div>')
 
 def changeTemp(s):
@@ -247,15 +247,15 @@ def reset(b):
     startButton.text = "Run"
     
     time = 0
-    altitude = 0
+    altitude = -20
     heightAboveSeaLvl = 0
     posx = 0
-    posy = 0
+    posy = altitude
     
     vx = 0
     vy = 0
     
-    balloon.pos = vec(0, altitude - 18, 0)
+    balloon.pos = vec(0, altitude, 0)
     
     speedCurve.delete()
     altitudeCurve.delete() 
@@ -265,7 +265,6 @@ def reset(b):
     altitudeCurve = gcurve(graph=altitudeVsTime, color=color.green)
     forceCurve = gcurve(graph=forceVsTime, color=color.blue)
     
-    scene.center = balloon.pos
     
 startButton = button(text = "Run", pos = scene.title_anchor, bind = start)
 resetButton = button(text = "Reset", pos = scene.title_anchor, bind = reset)
@@ -277,7 +276,7 @@ ropeTwo = cylinder(pos=vector(-0.5,0,0.5), axis = vector(0,3.5,0), radius = 0.02
 ropeThree = cylinder(pos=vector(0.5,0,-0.5), axis = vector(0,3.5,0), radius = 0.02, color = vector (0.367, 0.295, 0))
 ropeFour = cylinder(pos=vector(-0.5,0,-0.5), axis = vector(0,3.5,0), radius = 0.02, color = vector (0.367, 0.295, 0))
 
-balloon = compound([balloonTop, balloonBottom, ropeOne, ropeTwo, ropeThree, ropeFour], pos = vec(0, altitude - 18, 0))
+balloon = compound([balloonTop, balloonBottom, ropeOne, ropeTwo, ropeThree, ropeFour], pos = vec(0, altitude, 0))
 #attach_arrow(balloon, "velocity", color=color.green, scale=10, shaftwidth=balloon.radius/3)
 scene.center = balloon.pos
 
@@ -337,7 +336,7 @@ forceCurve = gcurve(graph=forceVsTime, color=color.blue)
 while True:
     global velocity, airPressure, newFluidVol, fluidVol, heightAboveSeaLvl, flameTemperature, fluidDens, dragForce, dragXForce, dragYForce, gravForce, buoForce, totalXForce, totalYForce, ax, ay, viy, vix, vfy, vfx, posxIncr, posyIncr, finalPosX, finalPosY, altitude, vy, vx, posx, posy, time, mass, balloonMass, payloadMass, sizeOfBalloonMass, crossSectArea, crossSectAreaDueToTemp, totalCrossSectionalArea, wind
     
-    rate(100)
+    rate(1/dt)
     if running:        
         hotAirDensity = fluidDens * (airTemperature / (tempOfFlameSlider.value + 273.15))
 
@@ -412,7 +411,7 @@ while True:
         vx = vfx
         
         speedCurve.plot(time, abs(vfy))
-        altitudeCurve.plot(time, posy)
+        altitudeCurve.plot(time, posy + 20)
         forceCurve.plot(time, totalForceFinal)
         
         scene.center = balloon.pos
