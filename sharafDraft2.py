@@ -2,6 +2,7 @@ Web VPython 3.2
 
 scene = canvas(width=1450, height=600)
 scene.append_to_title('<h1 style="margin-top:20px; text-align:center"><i>Hot</i> AIR BALLOON!</h1>')
+scene.background = vector(0,0,1)
 
 startButton = button(text = "Run", pos = scene.caption_anchor, bind = start)
 resetButton = button(text = "Reset", pos = scene.caption_anchor, bind = reset)
@@ -56,6 +57,8 @@ thickness = 2 * 10 ** -5 #m
 balloonMass = balloonMass = materialDens * 4 * crossSectArea * thickness # should NOT change unless crossSectArea is changing
 mass = balloonMass + payloadMass + sizeOfBalloonMass # total mass calculated w/ massOfAir in sizeOfBalloonMass
 dragResult = False
+maxAltitude = 0.02 * planetRadius
+t = 0
 
 
 # variables: fluid density, velocity, drag coefficient, cross sectional area, mass, gravity, fluid volume, altitude
@@ -86,12 +89,10 @@ def setPlanet(p):
         if i != p.i:
             buttons[i].checked = False
 
-backgroundBox = box(pos = vector(0, 0, -1), size = vector(52, 43, 0.1), texture = "https://i.imgur.com/nmIABNm.png")
-
 def setDefaults(x):
-    global fluidDens, airTemperature, dragCoeff, planetMass, air, planetRadius, backgroundBox
+    global fluidDens, airTemperature, dragCoeff, planetMass, air, planetRadius
     if x == "Earth":
-        backgroundBox = box(pos = vector(0, 0, -1), size = vector(52, 43, 0.1), texture = "https://i.imgur.com/nmIABNm.png") 
+        backgroundPic = "https://i.imgur.com/v1IQIPy.png"
         fluidDens = 1.225 #at 1 bar
         airTemperature = 273.15 #Kelvin at 1 bar
         dragCoeff = 0.5 #based on Atlas rocket https://web.archive.org/web/20170313142729/http://www.braeunig.us/apollo/saturnV.htm
@@ -99,7 +100,7 @@ def setDefaults(x):
         planetRadius = 6378 * 10 ** 3
         air = 'Air'
     elif x == "Saturn": #done
-        backgroundBox = box(pos = vector(0, 0, -1), size = vector(52, 43, 0.1), texture = "https://i.imgur.com/wJ2AoI3.png") 
+        backgroundPic = "https://i.imgur.com/ONgh9aA.png"
         fluidDens = 0.19 #at 1 bar
         airTemperature = 134 #Kelvin at 1 bar
         dragCoeff = 0.515 #based on Atlas rocket https://web.archive.org/web/20170313142729/http://www.braeunig.us/apollo/saturnV.htm
@@ -107,7 +108,7 @@ def setDefaults(x):
         planetRadius = 60268*10**3
         air = 'Helium'
     elif x == "Venus": #done
-        backgroundBox = box(pos = vector(0, 0, -1), size = vector(52, 43, 0.1), texture = "https://i.imgur.com/qYCd7PI.png") 
+        backgroundPic = "https://i.imgur.com/ao1TDhl.png"
         fluidDens = 65 #kg/m^3 at surface - would be much lower at 1 bar
         airTemperature = 301.5 #Kelvin at 1 bar
         dragCoeff = 2 #between 1.7-2.3
@@ -115,7 +116,7 @@ def setDefaults(x):
         planetRadius = 6052*10**3
         air = 'Carbon Dioxide'
     elif x == "Mars":
-        backgroundBox = box(pos = vector(0, 0, -1), size = vector(52, 43, 0.1), texture = "https://i.imgur.com/LBzuKqf.png") 
+        backgroundPic = "https://i.imgur.com/aFW1iTl.png"
         fluidDens = 0.020      # kg/m³ @ surface (~0.006 bar)
         airTemperature = 210.0      # K  (–63 °C), no 1 bar level exists
         dragCoeff = 0.3
@@ -123,7 +124,7 @@ def setDefaults(x):
         planetRadius = 3396 * 10**3
         air = "Carbon Dioxide"
     elif x == "Jupiter":
-        backgroundBox = box(pos = vector(0, 0, -1), size = vector(52, 43, 0.1), texture = "https://i.imgur.com/X4KWj52.png") 
+        backgroundPic = "https://i.imgur.com/kVOR7oH.png"
         fluidDens = 0.16       # kg/m³ @ 1 bar
         airTemperature = 165.0      # K  (–108 °C)
         dragCoeff = 0.47
@@ -131,7 +132,7 @@ def setDefaults(x):
         planetRadius = 71492*10**3
         air = "Helium"
     elif x == "Neptune":
-        backgroundBox = box(pos = vector(0, 0, -1), size = vector(52, 43, 0.1), texture = "https://i.imgur.com/SOK1EPe.png") 
+        backgroundPic = "https://i.imgur.com/PRQPcN6.png"
         fluidDens = 0.45       # kg/m³ @ 1 bar
         airTemperature = 72.0       # K  (–201 °C)
         dragCoeff = 0.47
@@ -139,7 +140,7 @@ def setDefaults(x):
         planetRadius = 24764 * 10**3
         air = "Helium"
     elif x == "Uranus":
-        backgroundBox = box(pos = vector(0, 0, -1), size = vector(52, 43, 0.1), texture = "https://i.imgur.com/YabrZbf.png") 
+        backgroundPic = "https://i.imgur.com/xvepFcP.png"
         fluidDens = 0.22       # kg/m³ @ 1 bar
         airTemperature = 76.0       # K  (–197 °C)
         dragCoeff = 0.47
@@ -343,7 +344,7 @@ def start(b):
 
 def reset():
     print("\n" * 100)
-    global vix, vfx, vfy, viy, dragResult, dt, buttons, airTemperature, planetRadius, planetMass, flameTemperature, pressureAtSeaLevel, homePlanet, airPressure, dragCoeff, velocity, numberOfMoles, fluidDens, speccAirConst, molarMass, ax, ay, result, materialDens, material, air, running, time, posx, posy, vx, vy, altitude, heightAboveSeaLvl, balloon, speedCurve, altitudeCurve, forceCurve, crossSectArea, fluidVol, sizeOfBalloonMass, payloadMass, balloonMass, mass, wind, vx    
+    global t, maxAltitude, vix, vfx, vfy, viy, dragResult, dt, buttons, airTemperature, planetRadius, planetMass, flameTemperature, pressureAtSeaLevel, homePlanet, airPressure, dragCoeff, velocity, numberOfMoles, fluidDens, speccAirConst, molarMass, ax, ay, result, materialDens, material, air, running, time, posx, posy, vx, vy, altitude, heightAboveSeaLvl, balloon, speedCurve, altitudeCurve, forceCurve, crossSectArea, fluidVol, sizeOfBalloonMass, payloadMass, balloonMass, mass, wind, vx    
     running = False
     result = False
     dragResult = False
@@ -357,6 +358,7 @@ def reset():
     posy = altitude
 
     dragCoeff = 0.5
+    t = 0
 
     airTemperature = 273.15 #Kelvin at 1 bar
     airPressure = 101325 # Pa
@@ -367,6 +369,8 @@ def reset():
     flameTemperature = 100 + 273.15 #Kelvin
     planetMass = 5.97219 * (10 ** 24)
     planetRadius = 6378 * 10 ** 3
+    maxAltitude = 0.02 * planetRadius
+
     
     vx = 0
     vy = 0
@@ -480,6 +484,7 @@ def changeMaterial(evt):
     mass = balloonMass + payloadMass + sizeOfBalloonMass
     materialCaption.text = " Material: " + evt.selected
         
+backgroundBox = box(pos = vector(0, 0, -1), size = vector(52, 43, 0.1), texture = "https://i.imgur.com/v1IQIPy.png")
 
 time = 0; dt=0.01
 
@@ -511,10 +516,15 @@ altitudeCurve = gcurve(graph=altitudeVsTime, color=color.green)
 forceCurve = gcurve(graph=forceVsTime, color=color.blue)
 
 while True:
-    global vix, viy, vfy, vfi, dt, ay, ax, result, lanetRadius, planetMass, velocity, airPressure, newFluidVol, fluidVol, heightAboveSeaLvl, flameTemperature, fluidDens, dragForce, dragXForce, dragYForce, gravForce, buoForce, totalXForce, totalYForce, ax, ay, viy, vix, vfy, vfx, posxIncr, posyIncr, finalPosX, finalPosY, altitude, vy, vx, posx, posy, time, mass, balloonMass, payloadMass, sizeOfBalloonMass, crossSectArea, crossSectAreaDueToTemp, totalCrossSectionalArea, wind
+    global t, maxAltitude, vix, viy, vfy, vfi, dt, ay, ax, result, lanetRadius, planetMass, velocity, airPressure, newFluidVol, fluidVol, heightAboveSeaLvl, flameTemperature, fluidDens, dragForce, dragXForce, dragYForce, gravForce, buoForce, totalXForce, totalYForce, ax, ay, viy, vix, vfy, vfx, posxIncr, posyIncr, finalPosX, finalPosY, altitude, vy, vx, posx, posy, time, mass, balloonMass, payloadMass, sizeOfBalloonMass, crossSectArea, crossSectAreaDueToTemp, totalCrossSectionalArea, wind
     
     rate(1/(dt))
-    if running:        
+    if running:      
+        maxAltitude = 0.02 * planetRadius
+        #fun sky changing color
+        t = heightAboveSeaLvl / maxAltitude
+        scene.background = vector((1 - t) * 0.3, (1 - t) * 0.6, (1 - t) * 1.0)
+
         hotAirDensity = fluidDens * (airTemperature / (tempOfFlameSlider.value + 273.15))
 
         newFluidVol = fluidVol * ((tempOfFlameSlider.value + 273.15) / airTemperature)    
@@ -623,7 +633,7 @@ while True:
         if posy < -18:
             print("HEHEHEHEHEH" + posy)
             result = confirm("Balloon has crashed! Would you like to restart?")
-        elif posy > (0.02 * planetRadius):
+        elif posy > (maxAltitude):
             result = confirm("Balloon has lifted out of this world! Would you like to restart?")
 
         if result:
@@ -640,3 +650,4 @@ while True:
         newRadius = pow(((3/4) * newFluidVol / pi),(1/3))
         totalCrossSectionalArea = pi * newRadius ** 2
         balloonTop.radius = (sqrt(totalCrossSectionalArea/pi) / 8)
+
