@@ -89,8 +89,9 @@ def setPlanet(p):
         if i != p.i:
             buttons[i].checked = False
 
-def setDefaults(x):
+def setDefaults(evt):
     global fluidDens, airTemperature, dragCoeff, planetMass, air, planetRadius
+    x = evt.text.strip()
     if x == "Earth":
         backgroundPic = "https://i.imgur.com/v1IQIPy.png"
         fluidDens = 1.225 #at 1 bar
@@ -187,25 +188,34 @@ def changeAir(evt): # stp
     sizeOfBalloonMass = fluidVol * fluidDens
     mass = balloonMass + payloadMass + sizeOfBalloonMass
 
-    airCaption.text = " Air: " + air
-
     check()
 
-venusRadio = radio(bind=setPlanet, text = "Venus", i = 0, plan = "Venus", checked = False)
-marsRadio = radio(bind=setPlanet, text = "Mars", i = 1, plan = "Mars", checked = False)
-earthRadio = radio(bind=setPlanet, text = "Earth", i = 2, plan = "Earth", checked = True)
-saturnRadio = radio(bind=setPlanet, text = "Saturn", i = 3, plan = "Saturn", checked = False)
-jupiterRadio = radio(bind=setPlanet, text = "Jupiter", i = 4, plan = "Jupiter", checked = False)
-neptuneRadio = radio(bind=setPlanet, text = "Neptune", i = 5, plan = "Neptune", checked = False)
+venusRadio = radio(bind=setPlanet, text = "Venus                              ", i = 0, plan = "Venus", checked = False)
+marsRadio = radio(bind=setPlanet, text = "Mars                                 ", i = 1, plan = "Mars", checked = False)
+earthRadio = radio(bind=setPlanet, text = "Earth                              ", i = 2, plan = "Earth", checked = True)
+saturnRadio = radio(bind=setPlanet, text = "Saturn                              ", i = 3, plan = "Saturn", checked = False)
+jupiterRadio = radio(bind=setPlanet, text = "Jupiter                              ", i = 4, plan = "Jupiter", checked = False)
+neptuneRadio = radio(bind=setPlanet, text = "Neptune                              ", i = 5, plan = "Neptune", checked = False)
 uranusRadio = radio(bind=setPlanet, text = "Uranus", i = 6, plan = "Uranus", checked = False)
 
 buttons = [saturnRadio, earthRadio, venusRadio, jupiterRadio, neptuneRadio, uranusRadio, marsRadio] 
 
-scene.append_to_caption('<div id="right">')
-scene.append_to_caption('<div style="margin-bottom: 15px;">')
+scene.append_to_caption('<div style="margin-top: 10px;">')
 
-passengerSlider = slider(min = 0, max = 10, value = 2, bind = numPassengers, step = 1)
+choicelist = ['Nylon', 'Polyester',
+             'Wicker', 'Stainless steel', 'Copper', 'Aluminum', 
+             'Plastic', 'Leather', 'Suede']
+
+materialCaption = wtext(text = ' Material: ')
+materialMenu = menu(choices=choicelist, bind=changeMaterial)
+
+airList = ['Air', 'Hydrogen', 'Nitrogen', 'Helium', 'Oxygen', 'Carbon Dioxide', 'Tungsten hexafluoride']
+airCaption = wtext(text = '                                                                                                                                                                                                                 Air: ')
+airMenu = menu(choices=airList, bind=changeAir)
+
 scene.append_to_caption('</div>')
+
+
 
 def numPassengers(s):
     global mass, sizeOfBalloonMass, payloadMass, balloonMass
@@ -214,14 +224,6 @@ def numPassengers(s):
     numPassengersValueDisplay.text = str(passengerSlider.value)
 
     check()
-    
-numPassengersTextDisplay = wtext(text = 'Number of Passengers = ')
-numPassengersValueDisplay = wtext(text = str(passengerSlider.value))
-
-scene.append_to_caption('<div id="right">')
-scene.append_to_caption('<div style="margin-bottom: 15px;">')
-sizeOfBalloonSlider = slider(bind = balloonSize, min = 150, max = 1000, value = 222.25, step = 0.25)
-scene.append_to_caption('</div>')
 
 def balloonSize():
     global crossSectArea, mass, fluidVol, sizeOfBalloonMass, payloadMass, balloonMass, totalCrossSectionalArea, balloon
@@ -236,13 +238,19 @@ def balloonSize():
 
     check()
 
-balloonSizeTextDisplay = wtext(text = 'Cross Sectional Area of Balloon (m^2) = ')
-balloonSizeValueDisplay = wtext(text = str(sizeOfBalloonSlider.value))
-    
+
+
 scene.append_to_caption('<div id="right">')
 scene.append_to_caption('<div style="margin-bottom: 15px;">')
-tempOfFlameSlider = slider(bind = changeTemp, min = 0, max = 350, value = 100, step = 0.01)
+sizeOfBalloonSlider = slider(bind = balloonSize, min = 150, max = 1000, value = 222.25, step = 0.25)
+balloonSizeTextDisplay = wtext(text = 'Cross Sectional Area of Balloon (m^2) = ')
+balloonSizeValueDisplay = wtext(text = str(sizeOfBalloonSlider.value) + "                             ")
 scene.append_to_caption('</div>')
+
+passengerSlider = slider(min = 0, max = 10, value = 2, bind = numPassengers, step = 1)
+numPassengersTextDisplay = wtext(text = 'Number of Passengers = ')
+numPassengersValueDisplay = wtext(text = str(passengerSlider.value))
+
 
 def changeTemp():
     global flameTemperature, fluidVol, crossSectAreaDueToTemp, totalCrossSectionalArea, crossSectArea, newFluidVol, balloon
@@ -257,13 +265,14 @@ def changeTemp():
 
     check()
 
+scene.append_to_caption('<div id="a">')
+scene.append_to_caption('<div style="margin-bottom: 15px;">')
+tempOfFlameSlider = slider(bind = changeTemp, min = 0, max = 350, value = 100, step = 0.01)
 tempOfFlameTextDisplay = wtext(text = 'Temperature of Flame (°C) = ')
 tempOfFlameValueDisplay = wtext(text = str(tempOfFlameSlider.value))
-
-scene.append_to_caption('<div id="right">')
-scene.append_to_caption('<div style="margin-bottom: 15px;">')
-windSlider = slider(bind = changeWind, min = -100, max = 100, value = 0)
+tempOfFlameSliderText = wtext(text = "                                                  ")
 scene.append_to_caption('</div>')
+
 
 def changeWind(s):
     global wind, vx
@@ -272,22 +281,10 @@ def changeWind(s):
     windValueDisplay.text = str(windSlider.value)
     check()
 
+windSlider = slider(bind = changeWind, min = -100, max = 100, value = 0)
 windTextDisplay = wtext(text = 'Wind (km/h) = ')
 windValueDisplay = wtext(text = str(windSlider.value))
 scene.append_to_caption('<div></div>')
-
-choicelist = ['Nylon', 'Polyester',
-             'Wicker', 'Stainless steel', 'Copper', 'Aluminum', 
-             'Plastic', 'Leather', 'Suede']
-
-materialMenu = menu(choices=choicelist, bind=changeMaterial)
-materialCaption = wtext(text = ' Material: ' + material + ' ')
-scene.append_to_caption('<div></div>')
-
-airList = ['Air', 'Hydrogen', 'Nitrogen', 'Helium', 'Oxygen', 'Carbon Dioxide', 'Tungsten hexafluoride']
-
-airMenu = menu(choices=airList, bind=changeAir)
-airCaption = wtext(text = ' Air: ' + air + " ")
 
 running = False
 
@@ -307,6 +304,44 @@ def createBalloon(radius):
     
     balloon = compound([balloonTop, balloonBottom, ropeOne, ropeTwo, ropeThree, ropeFour], pos = vector(0, altitude, 0))
     return balloon
+
+def createGraphs():
+    global speedVsTime, altitudeVsTime, forceVsTime, speedCurve, altitudeCurve, forceCurve
+    
+    speedVsTime = graph(title = 'Speed vs Time', xtitle = 'Time (s)', ytitle = 'Speed (m/s)', xmin = 0, ymin = 0, width=380, height=180, align='left')
+    altitudeVsTime = graph(title = 'Altitude vs Time', xtitle = 'Time (s)', ytitle = 'Altitude (m)', xmin = 0, ymin = 0, width=380, height=180, align='left')
+    forceVsTime = graph(title='Net Force vs Time', xtitle='Time (s)', ytitle='Force (N)', xmin=0, width=380, height=180, align='left')    
+
+    speedCurve = gcurve(graph=speedVsTime, color=color.red)
+    altitudeCurve = gcurve(graph=altitudeVsTime, color=color.green)
+    forceCurve = gcurve(graph=forceVsTime, color=color.blue)
+
+def deleteGraphs():
+    global speedVsTime, altitudeVsTime, forceVsTime, speedCurve, altitudeCurve, forceCurve
+    
+    if speedCurve:
+        speedCurve.delete()
+        speedCurve = None
+
+    if altitudeCurve:
+        altitudeCurve.delete()
+        altitudeCurve = None
+
+    if forceCurve:
+        forceCurve.delete()
+        forceCurve = None
+    
+    if speedVsTime:
+        speedVsTime.delete()
+        speedVsTime = None
+
+    if altitudeVsTime:
+        altitudeVsTime.delete()
+        altitudeVsTime = None
+
+    if forceVsTime:
+        forceVsTime.delete()
+        forceVsTime = None
 
 def enableControls():
     startButton.disabled = False
@@ -338,6 +373,7 @@ def start(b):
         print(crossSectAreaDueToTemp)
         startButton.text = "Running"
         disableControls()
+        createGraphs()
     else: 
         startButton.text = "Run"
         enableControls()
@@ -350,6 +386,8 @@ def reset():
     dragResult = False
     startButton.text = "Run"
     enableControls()
+
+    deleteGraphs()
     
     time = 0
     altitude = -16.25
@@ -384,9 +422,9 @@ def reset():
     vfx = 0
 
     material = "Nylon"
-    materialCaption.text = " Material: Nylon"
+    materialCaption.text = " Material: "
     air = "Air"
-    airCaption.text = " Air: Air"
+    airCaption.text = " Air: "
 
     for button in buttons:
         if button.i == 2:
@@ -404,7 +442,7 @@ def reset():
     windSlider.value = 0
     
     numPassengersValueDisplay.text = str(passengerSlider.value)
-    balloonSizeValueDisplay.text = str(sizeOfBalloonSlider.value)
+    balloonSizeValueDisplay.text = str(sizeOfBalloonSlider.value) + "                             "
     tempOfFlameValueDisplay.text = str(tempOfFlameSlider.value)
     windValueDisplay.text = str(windSlider.value)
     
@@ -414,7 +452,7 @@ def reset():
 
     dt = 0.01
     dtSlider.value = 0.01 
-    dtCaption.text = " Time Interval: " + dt + " "
+    dtCaption.text = "Time Interval: " + str(dt) + " "
 
     materialMenu.selected = "Nylon"
     airMenu.selected = "Air"
@@ -482,19 +520,22 @@ def changeMaterial(evt):
         materialDens = 700   # Suede (approx), kg/m^3
     balloonMass = materialDens * 4 * crossSectArea * thickness # should NOT change unless crossSectArea is changing
     mass = balloonMass + payloadMass + sizeOfBalloonMass
-    materialCaption.text = " Material: " + evt.selected
         
 backgroundBox = box(pos = vector(0, 0, -1), size = vector(52, 43, 0.1), texture = "https://i.imgur.com/v1IQIPy.png")
 
 time = 0; dt=0.01
 
+scene.append_to_caption('<div id="right">')
+scene.append_to_caption('<div style="margin-bottom: 15px;">')
+
 dtSlider = slider(bind = changeDT, min = 0.000000001, max = 0.1, value = 0.01, step = 0.000001)
-dtCaption = wtext(text = ' Time Interval: ' + dt + " ")
+dtCaption = wtext(text = 'Time Interval: ' + dt + " ")
+scene.append_to_caption('</div>')
 
 def changeDT():
     global dt
     dt = dtSlider.value
-    dtCaption.text = " Time Interval: " + dt + " "
+    dtCaption.text = "Time Interval: " + dt + " "
 
 posx = balloon.pos.x
 posy = balloon.pos.y
@@ -506,14 +547,6 @@ ax = 0
 
 balloon.velocity = 0
 scene.center = vector(balloon.pos.x, balloon.pos.y + 5.2, 0)
-    
-speedVsTime = graph(title = 'Speed vs Time', xtitle = 'Time (s)', ytitle = 'Speed (m/s)', xmin = 0, ymin = 0, width=380, height=180, align='left')
-altitudeVsTime = graph(title = 'Altitude vs Time', xtitle = 'Time (s)', ytitle = 'Altitude (m)', xmin = 0, ymin = 0, width=380, height=180, align='left')
-forceVsTime = graph(title='Net Force vs Time', xtitle='Time (s)', ytitle='Force (N)', xmin=0, width=380, height=180, align='left')    
-
-speedCurve = gcurve(graph=speedVsTime, color=color.red)
-altitudeCurve = gcurve(graph=altitudeVsTime, color=color.green)
-forceCurve = gcurve(graph=forceVsTime, color=color.blue)
 
 while True:
     global t, maxAltitude, vix, viy, vfy, vfi, dt, ay, ax, result, lanetRadius, planetMass, velocity, airPressure, newFluidVol, fluidVol, heightAboveSeaLvl, flameTemperature, fluidDens, dragForce, dragXForce, dragYForce, gravForce, buoForce, totalXForce, totalYForce, ax, ay, viy, vix, vfy, vfx, posxIncr, posyIncr, finalPosX, finalPosY, altitude, vy, vx, posx, posy, time, mass, balloonMass, payloadMass, sizeOfBalloonMass, crossSectArea, crossSectAreaDueToTemp, totalCrossSectionalArea, wind
