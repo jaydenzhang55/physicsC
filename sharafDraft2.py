@@ -592,9 +592,9 @@ def reset():
     speedVsTime = graph(title="Speed vs. Time", xtitle="Time (s)", ytitle="Speed (m/s)", fast=False)
     altitudeVsTime = graph(title="Altitude vs. Time", xtitle="Time (s)", ytitle="Altitude (m)", fast=False)
     forceVsTime = graph(title="Net Force vs. Time", xtitle="Time (s)", ytitle="Net Force (N)", fast=False)
-    speedCurve = gcurve(graph=speedVsTime, color=color.red)
-    altitudeCurve = gcurve(graph=altitudeVsTime, color=color.green)
-    forceCurve = gcurve(graph=forceVsTime, color=color.blue)
+ #   speedCurve = gcurve(graph=speedVsTime, color=color.red)
+#    altitudeCurve = gcurve(graph=altitudeVsTime, color=color.green)
+   # forceCurve = gcurve(graph=forceVsTime, color=color.blue)
 
 changeTemp()  
 balloon = createBalloon(sqrt(totalCrossSectionalArea/pi) / 4)
