@@ -58,6 +58,10 @@ balloonMass = balloonMass = materialDens * 4 * crossSectArea * thickness # shoul
 mass = balloonMass + payloadMass + sizeOfBalloonMass # total mass calculated w/ massOfAir in sizeOfBalloonMass
 dragResult = False
 maxAltitude = 0.02 * planetRadius
+airOfPlanet = "Air"
+molarMassPlanet = 28.965
+speccAirConstPlanet = 287.058
+fluidDensPlanet = 1.225
 t = 0
 
 
@@ -90,7 +94,7 @@ def setPlanet(p):
             buttons[i].checked = False
 
 def setDefaults(evt):
-    global fluidDens, airTemperature, dragCoeff, planetMass, air, planetRadius
+    global fluidDens, airTemperature, dragCoeff, planetMass, airOfPlanet, planetRadius, molarMassPlanet, speccAirConstPlanet, fluidDensPlanet
     x = evt.text.strip()
     if x == "Earth":
         backgroundPic = "https://i.imgur.com/v1IQIPy.png"
@@ -99,7 +103,10 @@ def setDefaults(evt):
         dragCoeff = 0.5 #based on Atlas rocket https://web.archive.org/web/20170313142729/http://www.braeunig.us/apollo/saturnV.htm
         planetMass = 5.97219 * (10 ** 24)
         planetRadius = 6378 * 10 ** 3
-        air = 'Air'
+        airOfPlanet = 'Air'
+        molarMassPlanet = 28.965
+        fluidDensPlanet = 1.225
+        speccAirConstPlanet = 287.058
     elif x == "Saturn": #done
         backgroundPic = "https://i.imgur.com/ONgh9aA.png"
         fluidDens = 0.19 #at 1 bar
@@ -107,7 +114,10 @@ def setDefaults(evt):
         dragCoeff = 0.515 #based on Atlas rocket https://web.archive.org/web/20170313142729/http://www.braeunig.us/apollo/saturnV.htm
         planetMass = 5.684*10**26
         planetRadius = 60268*10**3
-        air = 'Helium'
+        airOfPlanet = 'Helium'
+        molarMassPlanet = 4 
+        fluidDensPlanet = 0.1784
+        speccAirConstPlanet = 2077
     elif x == "Venus": #done
         backgroundPic = "https://i.imgur.com/ao1TDhl.png"
         fluidDens = 65 #kg/m^3 at surface - would be much lower at 1 bar
@@ -115,7 +125,10 @@ def setDefaults(evt):
         dragCoeff = 2 #between 1.7-2.3
         planetMass = 4.8673*10**24
         planetRadius = 6052*10**3
-        air = 'Carbon Dioxide'
+        airOfPlanet = 'Carbon Dioxide'
+        molarMassPlanet = 44.003
+        fluidDensPlanet = 1.98
+        speccAirConstPlanet = 188.9
     elif x == "Mars":
         backgroundPic = "https://i.imgur.com/aFW1iTl.png"
         fluidDens = 0.020      # kg/m³ @ surface (~0.006 bar)
@@ -123,7 +136,10 @@ def setDefaults(evt):
         dragCoeff = 0.3
         planetMass = 6.4171* 10 ** 23  # kg
         planetRadius = 3396 * 10**3
-        air = "Carbon Dioxide"
+        airOfPlanet = "Carbon Dioxide"
+        molarMassPlanet = 44.003
+        fluidDensPlanet = 1.98
+        speccAirConstPlanet = 188.9
     elif x == "Jupiter":
         backgroundPic = "https://i.imgur.com/kVOR7oH.png"
         fluidDens = 0.16       # kg/m³ @ 1 bar
@@ -131,7 +147,10 @@ def setDefaults(evt):
         dragCoeff = 0.47
         planetMass = 1.8982 * 10 ** 27  # kg
         planetRadius = 71492*10**3
-        air = "Helium"
+        airOfPlanet = "Helium"
+        molarMassPlanet = 4  
+        fluidDensPlanet = 0.1784
+        speccAirConstPlanet = 2077
     elif x == "Neptune":
         backgroundPic = "https://i.imgur.com/PRQPcN6.png"
         fluidDens = 0.45       # kg/m³ @ 1 bar
@@ -139,7 +158,10 @@ def setDefaults(evt):
         dragCoeff = 0.47
         planetMass = 1.02413* 10 ** 26 # kg
         planetRadius = 24764 * 10**3
-        air = "Helium"
+        airOfPlanet = "Helium"
+        molarMassPlanet = 4 
+        fluidDensPlanet = 0.1784
+        speccAirConstPlanet = 2077
     elif x == "Uranus":
         backgroundPic = "https://i.imgur.com/xvepFcP.png"
         fluidDens = 0.22       # kg/m³ @ 1 bar
@@ -147,7 +169,10 @@ def setDefaults(evt):
         dragCoeff = 0.47
         planetMass = 8.6810 * 10 ** 25  # kg
         planetRadius = 25559 * 10 ** 3
-        air = "Helium"
+        airOfPlanet = "Helium"
+        molarMassPlanet = 4  
+        fluidDensPlanet = 0.1784
+        speccAirConstPlanet = 2077
     backgroundBox.texture = backgroundPic
         
 def changeAir(evt): # stp
@@ -549,7 +574,7 @@ balloon.velocity = 0
 scene.center = vector(balloon.pos.x, balloon.pos.y + 5.2, 0)
 
 while True:
-    global t, maxAltitude, vix, viy, vfy, vfi, dt, ay, ax, result, lanetRadius, planetMass, velocity, airPressure, newFluidVol, fluidVol, heightAboveSeaLvl, flameTemperature, fluidDens, dragForce, dragXForce, dragYForce, gravForce, buoForce, totalXForce, totalYForce, ax, ay, viy, vix, vfy, vfx, posxIncr, posyIncr, finalPosX, finalPosY, altitude, vy, vx, posx, posy, time, mass, balloonMass, payloadMass, sizeOfBalloonMass, crossSectArea, crossSectAreaDueToTemp, totalCrossSectionalArea, wind
+    global t, airOfPlanet, maxAltitude, vix, viy, vfy, vfi, dt, ay, ax, result, lanetRadius, planetMass, velocity, airPressure, newFluidVol, fluidVol, heightAboveSeaLvl, flameTemperature, fluidDens, dragForce, dragXForce, dragYForce, gravForce, buoForce, totalXForce, totalYForce, ax, ay, viy, vix, vfy, vfx, posxIncr, posyIncr, finalPosX, finalPosY, altitude, vy, vx, posx, posy, time, mass, balloonMass, payloadMass, sizeOfBalloonMass, crossSectArea, crossSectAreaDueToTemp, totalCrossSectionalArea, wind
     
     rate(1/(dt))
     if running:      
@@ -578,8 +603,8 @@ while True:
 
         print("newGrav: " + newGravity)
 
-        airPressureOut = (pressureAtSeaLevel)*(exp((-(molarMass/1000)*newGravity*heightAboveSeaLvl)/(8.314 * (airTemperature)))) #Pascals
-        fluidDensOut = (airPressureOut)/((speccAirConst)*(airTemperature)) #kg/m^3
+        airPressureOut = (pressureAtSeaLevel)*(exp((-(molarMassPlanet/1000)*newGravity*heightAboveSeaLvl)/(8.314 * (airTemperature)))) #Pascals
+        fluidDensOut = (airPressureOut)/((speccAirConstPlanet)*(airTemperature)) #kg/m^3
 
         airPressureIn = (pressureAtSeaLevel)*(exp(-(molarMass/1000)*newGravity*heightAboveSeaLvl)/(8.314 * (tempOfFlameSlider.value + 273.15))) #Pascals
         fluidDensIn = (airPressureIn)/((speccAirConst)*(tempOfFlameSlider.value + 273.15)) #kg/m^3
