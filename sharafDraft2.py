@@ -11,8 +11,8 @@ scene.container = "left"
 scene.append_to_caption('<h3 style="margin-top:5px; text-align:center">Balloon Parameters</h3>')
 
 scene.userzoom = False
-scene.userspin = True
-scene.userpan = True
+scene.userspin = False
+scene.userpan = False
 scene.resizable = False
 scene.autoscale = False
 
@@ -334,9 +334,9 @@ def createBalloon(radius):
 def createGraphs():
     global speedVsTime, altitudeVsTime, forceVsTime, speedCurve, altitudeCurve, forceCurve
     
-    speedVsTime = graph(title = 'Speed vs Time', xtitle = 'Time (s)', ytitle = 'Speed (m/s)', xmin = 0, ymin = 0, width=380, height=180, align='left')
-    altitudeVsTime = graph(title = 'Altitude vs Time', xtitle = 'Time (s)', ytitle = 'Altitude (m)', xmin = 0, ymin = 0, width=380, height=180, align='left')
-    forceVsTime = graph(title='Net Force vs Time', xtitle='Time (s)', ytitle='Force (N)', xmin=0, width=380, height=180, align='left')    
+    speedVsTime = graph(title = 'Speed vs Time', xtitle = 'Time (s)', ytitle = 'Speed (m/s)', xmin = 0, ymin = 0, width=1450/3, height=180, align='left')
+    altitudeVsTime = graph(title = 'Altitude vs Time', xtitle = 'Time (s)', ytitle = 'Altitude (m)', xmin = 0, ymin = 0, width=1450/3, height=180, align='left')
+    forceVsTime = graph(title='Net Force vs Time', xtitle='Time (s)', ytitle='Force (N)', xmin=0, width=1450/3, height=180, align='left')    
 
     speedCurve = gcurve(graph=speedVsTime, color=color.red)
     altitudeCurve = gcurve(graph=altitudeVsTime, color=color.green)
@@ -393,10 +393,10 @@ def start(b):
     global running
     running = True
     if running: 
-        print(sqrt(totalCrossSectionalArea/pi) / 8)
-        print(flameTemperature)
-        print(crossSectArea)
-        print(crossSectAreaDueToTemp)
+        #print(sqrt(totalCrossSectionalArea/pi) / 8)
+        #print(flameTemperature)
+        #print(crossSectArea)
+        #print(crossSectAreaDueToTemp)
         startButton.text = "Running"
         disableControls()
         createGraphs()
@@ -405,7 +405,7 @@ def start(b):
         enableControls()
 
 def reset():
-    print("\n" * 100)
+    #print("\n" * 100)
     global fluidDensPlanet, molarMassPlanet, speccAirConstPlanet, airOfPlanet, relWindVy, relWindVx, windAngle, t, maxAltitude, vix, vfx, vfy, viy, dragResult, dt, buttons, airTemperature, planetRadius, planetMass, flameTemperature, pressureAtSeaLevel, homePlanet, airPressure, dragCoeff, velocity, numberOfMoles, fluidDens, speccAirConst, molarMass, ax, ay, result, materialDens, material, air, running, time, posx, posy, vx, vy, altitude, heightAboveSeaLvl, balloon, speedCurve, altitudeCurve, forceCurve, crossSectArea, fluidVol, sizeOfBalloonMass, payloadMass, balloonMass, mass, wind, vx    
     running = False
     result = False
@@ -570,6 +570,10 @@ tempOfFlameSliderText = wtext(text = "                                          
 windAngleSlider = slider(bind = changeWindAngle, min = 0, max = 360, value = 0, step = 1)
 windAngleCaption = wtext(text = "Wind Angle (°) = " + windAngle + " ")
 scene.append_to_caption('</div>')
+scene.append_to_caption('<div style="margin-top:5px;">\n</div>')
+
+scene.append_to_caption('<h3 style="margin-top:5px; text-align:center; ">Graphs Below (Click Run To See Them!)</h3>')
+
 
 def changeWindAngle():
     global windAngle
@@ -608,9 +612,9 @@ while True:
         sizeOfBalloonMass = newFluidVol * hotAirDensity
         mass = balloonMass + payloadMass + sizeOfBalloonMass
 
-        print("BM: " + balloonMass)
-        print("payload: " + payloadMass)
-        print("sizeOFB: " + sizeOfBalloonMass)
+        #print("BM: " + balloonMass)
+        #print("payload: " + payloadMass)
+        #print("sizeOFB: " + sizeOfBalloonMass)
 
         newRadius = pow(((3/4) * newFluidVol / pi),(1/3))
         totalCrossSectionalArea = pi * newRadius ** 2
@@ -620,7 +624,7 @@ while True:
 
         newGravity = (gravitationalC * planetMass) / (distanceToCenter ** 2)
 
-        print("newGrav: " + newGravity)
+        #print("newGrav: " + newGravity)
 
         airPressureOut = (pressureAtSeaLevel)*(exp((-(molarMassPlanet/1000)*newGravity*heightAboveSeaLvl)/(8.314 * (airTemperature)))) #Pascals
         fluidDensOut = (airPressureOut)/((speccAirConstPlanet)*(airTemperature)) #kg/m^3
@@ -648,7 +652,7 @@ while True:
         if dragResult:
             reset()
         
-        print("mass: " + mass)
+        #print("mass: " + mass)
 
         gravForce = mass * gravitationalC * planetMass / (distanceToCenter ** 2)
         buoForce = (fluidDensDiff) * newGravity * newFluidVol  # archimedes principle
@@ -658,12 +662,12 @@ while True:
         
         totalForceFinal = sqrt(totalXForce*totalXForce + totalYForce*totalYForce)
     
-        print("buo" + buoForce)
-        print("grav" + gravForce)
-        print("drag" + dragYForce)
-        print("densdiff" + fluidDensDiff)
-        print(totalYForce)
-        print(posy)
+        #print("buo" + buoForce)
+        #print("grav" + gravForce)
+        #print("drag" + dragYForce)
+        #print("densdiff" + fluidDensDiff)
+        #print(totalYForce)
+        #print(posy)
             
         ay = totalYForce / mass
         ax = totalXForce / mass
@@ -682,10 +686,10 @@ while True:
         else:
             posyIncr = vfy * dt
 
-        print("vix: " + vix)
-        print("vfx: " + vfx)
-        print("viy: " + viy)
-        print("vfy: " + vfy)
+        #print("vix: " + vix)
+        #print("vfx: " + vfx)
+        #print("viy: " + viy)
+        #print("vfy: " + vfy)
     
         finalPosX = posx + posxIncr
         finalPosY = posy + posyIncr
@@ -711,7 +715,7 @@ while True:
         heightAboveSeaLvl = altitude
 
         if posy < -18:
-            print("HEHEHEHEHEH" + posy)
+            #print("HEHEHEHEHEH" + posy)
             result = confirm("Balloon has crashed! Would you like to restart?")
         elif posy > (maxAltitude):
             result = confirm("Balloon has lifted out of this world! Would you like to restart?")
