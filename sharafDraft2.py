@@ -1,8 +1,8 @@
 Web VPython 3.2
 
 scene = canvas(width=1450, height=600)
-scene.append_to_title('<h1 style="margin-top:20px; text-align:center"><i>Hot</i> AIR BALLOON!</h1>')
-scene.background = vector(0,0,1)
+scene.append_to_title('<h1 style="margin-top:20px; text-align:center"><i>Hot</i> AIR BALLOON SIMULATOR!</h1>')
+scene.background = vector(0.3, 0.6, 1)
 
 startButton = button(text = "Run", pos = scene.caption_anchor, bind = start)
 resetButton = button(text = "Reset", pos = scene.caption_anchor, bind = reset)
@@ -66,6 +66,7 @@ airOfPlanet = "Air"
 molarMassPlanet = 28.965
 speccAirConstPlanet = 287.058
 fluidDensPlanet = 1.225
+landscapeObjects = []
 
 # variables: fluid density, velocity, drag coefficient, cross sectional area, mass, gravity, fluid volume, altitude
 
@@ -175,7 +176,7 @@ def setDefaults(evt):
         molarMassPlanet = 4  
         fluidDensPlanet = 0.1784
         speccAirConstPlanet = 2077
-    backgroundBox.texture = backgroundPic
+    # backgroundBox.texture = backgroundPic
         
 def changeAir(evt): # stp
     global air, molarMass, fluidDens, numberOfMoles, massOfAir, speccAirConst, sizeOfBalloonMass, mass
@@ -261,7 +262,7 @@ def balloonSize():
     sizeOfBalloonMass = fluidDens * fluidVol
     mass = sizeOfBalloonMass + payloadMass + balloonMass
     changeTemp()
-    balloon = createBalloon(sqrt(totalCrossSectionalArea/pi) / 8)
+    balloon = createBalloon(sqrt(totalCrossSectionalArea/pi) / 4)
 
     check()
 
@@ -271,7 +272,8 @@ scene.append_to_caption('<div id="right">')
 scene.append_to_caption('<div style="margin-bottom: 15px;">')
 sizeOfBalloonSlider = slider(bind = balloonSize, min = 150, max = 1000, value = 222.25, step = 0.25)
 balloonSizeTextDisplay = wtext(text = 'Cross Sectional Area of Balloon (m^2) = ')
-balloonSizeValueDisplay = wtext(text = str(sizeOfBalloonSlider.value) + "                             ")
+balloonSizeValueDisplay = wtext(text = str(sizeOfBalloonSlider.value))
+balloonSizeCaptionSpace = wtext(text = "                             ")
 scene.append_to_caption('</div>')
 
 passengerSlider = slider(min = 0, max = 10, value = 2, bind = numPassengers, step = 1)
@@ -288,7 +290,7 @@ def changeTemp():
     totalCrossSectionalArea = pi * newRadius ** 2
     crossSectAreaDueToTemp = totalCrossSectionalArea - crossSectArea
 
-    balloon = createBalloon(sqrt(totalCrossSectionalArea/pi) / 8)
+    balloon = createBalloon(sqrt(totalCrossSectionalArea/pi) / 4)
 
     check()
 
@@ -321,15 +323,90 @@ def createBalloon(radius):
         balloon.visible = False
         del balloon
     
-    balloonTop = sphere(pos = vector(0, 4, 0), radius = radius, color = color.red)
-    balloonBottom = box(pos = vector(0, 0 , 0), length = 1.25, height = 0.75, width = 1.25, color = color.gray(0.5))
+    balloonTop = sphere(pos = vector(0, 5, 0), radius = radius, color = color.red)
+    balloonBottom = box(pos = vector(0, 0, 0), length = 1.25, height = 0.75, width = 1.25, color = color.gray(0.5))
     ropeOne = cylinder(pos=vector(0.5,0,0.5), axis = vector(0,3.5,0), radius = 0.02, color = vector (0.367, 0.295, 0))
     ropeTwo = cylinder(pos=vector(-0.5,0,0.5), axis = vector(0,3.5,0), radius = 0.02, color = vector (0.367, 0.295, 0))
     ropeThree = cylinder(pos=vector(0.5,0,-0.5), axis = vector(0,3.5,0), radius = 0.02, color = vector (0.367, 0.295, 0))
     ropeFour = cylinder(pos=vector(-0.5,0,-0.5), axis = vector(0,3.5,0), radius = 0.02, color = vector (0.367, 0.295, 0))
     
-    balloon = compound([balloonTop, balloonBottom, ropeOne, ropeTwo, ropeThree, ropeFour], pos = vector(0, altitude, 0))
+    balloon = compound([balloonTop, balloonBottom, ropeOne, ropeTwo, ropeThree, ropeFour], pos = vector(0, altitude + 3, 0))
     return balloon
+
+def createTree(pos, scale):
+    trunk = cylinder(pos=vector(0, 0, 0), axis=vector(0, 4.5 * scale, 0), radius=0.5 * scale, color=vector(0.580, 0.362, 0))
+    l1 = cone(pos=vector(0, 4.5 * scale, 0), axis=vector(0, 2.5 * scale, 0), radius=2 * scale, color=color.green)
+    l2 = cone(pos=vector(0, 6 * scale, 0), axis=vector(0, 2.5 * scale, 0), radius=1.5 * scale, color=color.green)
+    l3 = cone(pos=vector(0, 7.5 * scale, 0), axis=vector(0, 2 * scale, 0), radius=1 * scale, color=color.green)
+    return compound([trunk, l1, l2, l3], pos=pos)
+
+def createTallTree(pos, scale):
+    trunk = cylinder(pos=vector(0, 0, 0), axis=vector(0, 8 * scale, 0), radius=0.75 * scale, color=vector(0.580, 0.362, 0))
+    l1 = cone(pos=vector(0, 8 * scale, 0), axis=vector(0, 4 * scale, 0), radius=3 * scale, color=color.green)
+    l2 = cone(pos=vector(0, 10 * scale, 0), axis=vector(0, 3.75 * scale, 0), radius=2.5 * scale, color=color.green)
+    l3 = cone(pos=vector(0, 11.75 * scale, 0), axis=vector(0, 3.5 * scale, 0), radius=2 * scale, color=color.green)
+    l4 = cone(pos=vector(0, 13.25 * scale, 0), axis=vector(0, 3.25 * scale, 0), radius=1.5 * scale, color=color.green)
+    return compound([trunk, l1, l2, l3, l4], pos=pos)
+
+def createMountain(pos, size):
+    return pyramid(pos=pos, size=size, color=color.gray(0.5), axis=vector(0, 1, 0))
+
+def createLandscape():
+    global landscapeObjects
+    landscapeObjects = []
+
+    ground_main = box(pos=vector(0, -22, -10), size=vector(200, 4, 600), color=color.green*0.6)
+    landscapeObjects.append(ground_main)
+
+    for i in range(100):  
+        x = -80 + random() * 160  
+        z = -40 + random() * 25   
+        y = -16.25 
+        scale = 0.8 + random() * 0.7
+        
+        tree = createTree(vector(x, y, z), scale)
+        landscapeObjects.append(tree)
+    
+    for i in range(40):  
+        x = -70 + random() * 140
+        z = -35 + random() * 23
+        y = -16.25  
+        scale = 0.6 + random() * 0.6 
+        
+        tall_tree = createTallTree(vector(x, y, z), scale)
+        landscapeObjects.append(tall_tree)
+    
+    mountainPositions = [
+        vector(-60, -26, -80),   
+        vector(-30, -26, -90),
+        vector(0, -26, -100),    
+        vector(35, -26, -85),
+        vector(70, -26, -95),
+        vector(-90, -26, -70),
+        vector(90, -26, -75),
+        vector(-45, -26, -120),  
+        vector(45, -26, -110),
+        vector(0, -26, -130)
+    ]
+    
+    mountainSizes = [
+        vector(40, 80, 30),   
+        vector(35, 70, 25),
+        vector(50, 100, 40), 
+        vector(38, 75, 28),
+        vector(45, 90, 35),
+        vector(42, 85, 32),
+        vector(36, 72, 27),
+        vector(55, 110, 45),  
+        vector(48, 95, 38),
+        vector(60, 120, 50)   
+    ]
+
+    for i in range(len(mountainPositions)):
+        mountain = createMountain(mountainPositions[i], mountainSizes[i])
+        landscapeObjects.append(mountain)
+    
+createLandscape()
 
 def createGraphs():
     global speedVsTime, altitudeVsTime, forceVsTime, speedCurve, altitudeCurve, forceCurve
@@ -484,8 +561,8 @@ def reset():
     crossSectArea = 225.25
     wind = 0
 
-    dt = 0.01
-    dtSlider.value = 0.01 
+    dt = 0.0100000001
+    dtSlider.value = 0.0100000001 
     dtCaption.text = "Time Interval (s) = " + str(dt) + " "
     windAngleCaption.text = "Wind Angle (°) = " + str(windAngle) + " "
 
@@ -506,7 +583,7 @@ def reset():
     changeTemp()
     balloonSize()
     
-    balloon = createBalloon(sqrt(totalCrossSectionalArea/pi) / 8)
+    balloon = createBalloon(sqrt(totalCrossSectionalArea/pi) / 4)
 
     balloon.pos = vector(0, altitude, 0)
     scene.center = vector(balloon.pos.x, balloon.pos.y + 5.2, 0)
@@ -520,7 +597,7 @@ def reset():
     forceCurve = gcurve(graph=forceVsTime, color=color.blue)
 
 changeTemp()  
-balloon = createBalloon(sqrt(totalCrossSectionalArea/pi) / 8)
+balloon = createBalloon(sqrt(totalCrossSectionalArea/pi) / 4)
 
 #attach_arrow(balloon, "velocity", color=color.green, scale=10, shaftwidth=balloon.radius/3)
 
@@ -556,16 +633,16 @@ def changeMaterial(evt):
     balloonMass = materialDens * 4 * crossSectArea * thickness # should NOT change unless crossSectArea is changing
     mass = balloonMass + payloadMass + sizeOfBalloonMass
         
-backgroundBox = box(pos = vector(0, 0, -1), size = vector(52, 43, 0.1), texture = "https://i.imgur.com/v1IQIPy.png")
+# backgroundBox = box(pos = vector(0, 0, -1), size = vector(52, 43, 0.1), texture = "https://i.imgur.com/v1IQIPy.png")
 
-time = 0; dt=0.01
+time = 0; dt=0.0100000001
 
 scene.append_to_caption('<div id="right">')
 scene.append_to_caption('<div style="margin-bottom: 15px;">')
 
-dtSlider = slider(bind = changeDT, min = 0.000000001, max = 0.1, value = 0.01, step = 0.000001)
+dtSlider = slider(bind = changeDT, min = 0.000000001, max = 0.100000000, value = 0.0100000001, step = 0.000001000)
 dtCaption = wtext(text = 'Time Interval (s) = ' + dt + " ")
-tempOfFlameSliderText = wtext(text = "                                                              ")
+dtCaptionText = wtext(text = "                                                ")
 
 windAngleSlider = slider(bind = changeWindAngle, min = 0, max = 360, value = 0, step = 1)
 windAngleCaption = wtext(text = "Wind Angle (°) = " + windAngle + " ")
@@ -573,7 +650,6 @@ scene.append_to_caption('</div>')
 scene.append_to_caption('<div style="margin-top:5px;">\n</div>')
 
 scene.append_to_caption('<h3 style="margin-top:5px; text-align:center; ">Graphs Below (Click Run To See Them!)</h3>')
-
 
 def changeWindAngle():
     global windAngle
@@ -707,9 +783,9 @@ while True:
         altitudeCurve.plot(time, posy + 16.25)
         forceCurve.plot(time, totalForceFinal)
         
-        if posy >= -10:
+        if posy >= -8:
             scene.center = balloon.pos
-        elif posy <= 10 and (posx < -5 or posx > 5):
+        elif posy <= 12 and (posx < -5 or posx > 5):
             scene.center =  vector(balloon.pos.x, balloon.pos.y + 5.2, 0)
 
         heightAboveSeaLvl = altitude
