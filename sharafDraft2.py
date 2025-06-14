@@ -483,7 +483,7 @@ def start(b):
 
 def reset():
     #print("\n" * 100)
-    global fluidDensPlanet, molarMassPlanet, speccAirConstPlanet, airOfPlanet, relWindVy, relWindVx, windAngle, t, maxAltitude, vix, vfx, vfy, viy, dragResult, dt, buttons, airTemperature, planetRadius, planetMass, flameTemperature, pressureAtSeaLevel, homePlanet, airPressure, dragCoeff, velocity, numberOfMoles, fluidDens, speccAirConst, molarMass, ax, ay, result, materialDens, material, air, running, time, posx, posy, vx, vy, altitude, heightAboveSeaLvl, balloon, speedCurve, altitudeCurve, forceCurve, crossSectArea, fluidVol, sizeOfBalloonMass, payloadMass, balloonMass, mass, wind, vx    
+    global speedVsTime, altitudeVsTime, forceVsTime, speedCurve, altitudeCruve, forceCurve, fluidDensPlanet, molarMassPlanet, speccAirConstPlanet, airOfPlanet, relWindVy, relWindVx, windAngle, t, maxAltitude, vix, vfx, vfy, viy, dragResult, dt, buttons, airTemperature, planetRadius, planetMass, flameTemperature, pressureAtSeaLevel, homePlanet, airPressure, dragCoeff, velocity, numberOfMoles, fluidDens, speccAirConst, molarMass, ax, ay, result, materialDens, material, air, running, time, posx, posy, vx, vy, altitude, heightAboveSeaLvl, balloon, speedCurve, altitudeCurve, forceCurve, crossSectArea, fluidVol, sizeOfBalloonMass, payloadMass, balloonMass, mass, wind, vx    
     running = False
     result = False
     dragResult = False
@@ -587,11 +587,11 @@ def reset():
 
     balloon.pos = vector(0, altitude, 0)
     scene.center = vector(balloon.pos.x, balloon.pos.y + 5.2, 0)
+    deleteGraphs()
     
-    speedCurve.delete()
-    altitudeCurve.delete() 
-    forceCurve.delete()
-    
+    speedVsTime = graph(title="Speed vs. Time", xtitle="Time (s)", ytitle="Speed (m/s)", fast=False)
+    altitudeVsTime = graph(title="Altitude vs. Time", xtitle="Time (s)", ytitle="Altitude (m)", fast=False)
+    forceVsTime = graph(title="Net Force vs. Time", xtitle="Time (s)", ytitle="Net Force (N)", fast=False)
     speedCurve = gcurve(graph=speedVsTime, color=color.red)
     altitudeCurve = gcurve(graph=altitudeVsTime, color=color.green)
     forceCurve = gcurve(graph=forceVsTime, color=color.blue)
@@ -778,10 +778,12 @@ while True:
         
         vy = vfy
         vx = vfx
-        
-        speedCurve.plot(time, abs(vfy))
-        altitudeCurve.plot(time, posy + 16.25)
-        forceCurve.plot(time, totalForceFinal)
+        if speedCurve is not None:
+            speedCurve.plot(time, abs(vfy))
+        if altitudeCurve is not None:
+            altitudeCurve.plot(time, posy + 16.25)
+        if forceCurve is not None:
+            forceCurve.plot(time, totalForceFinal)
         
         if posy >= -8:
             scene.center = balloon.pos
@@ -798,6 +800,7 @@ while True:
 
         if result:
             reset()
+            continue 
         
         time += dt
     else:
@@ -810,4 +813,3 @@ while True:
         newRadius = pow(((3/4) * newFluidVol / pi),(1/3))
         totalCrossSectionalArea = pi * newRadius ** 2
         balloonTop.radius = (sqrt(totalCrossSectionalArea/pi) / 8)
-
