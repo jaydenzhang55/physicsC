@@ -58,12 +58,14 @@ balloonMass = balloonMass = materialDens * 4 * crossSectArea * thickness # shoul
 mass = balloonMass + payloadMass + sizeOfBalloonMass # total mass calculated w/ massOfAir in sizeOfBalloonMass
 dragResult = False
 maxAltitude = 0.02 * planetRadius
+t = 0
+windAngle = 0
+relWindVy = 0
+relWindVx = 0
 airOfPlanet = "Air"
 molarMassPlanet = 28.965
 speccAirConstPlanet = 287.058
 fluidDensPlanet = 1.225
-t = 0
-
 
 # variables: fluid density, velocity, drag coefficient, cross sectional area, mass, gravity, fluid volume, altitude
 
@@ -94,7 +96,7 @@ def setPlanet(p):
             buttons[i].checked = False
 
 def setDefaults(evt):
-    global fluidDens, airTemperature, dragCoeff, planetMass, airOfPlanet, planetRadius, molarMassPlanet, speccAirConstPlanet, fluidDensPlanet
+    global fluidDens, airTemperature, dragCoeff, planetMass, airOfPlanet, planetRadius, molarMassPlanet, speccAirConstPlanet, fluidDensPlanet    
     x = evt.text.strip()
     if x == "Earth":
         backgroundPic = "https://i.imgur.com/v1IQIPy.png"
@@ -300,13 +302,12 @@ scene.append_to_caption('</div>')
 
 
 def changeWind(s):
-    global wind, vx
+    global wind
     wind = windSlider.value
-    vx = wind * 1000/3600
     windValueDisplay.text = str(windSlider.value)
     check()
 
-windSlider = slider(bind = changeWind, min = -100, max = 100, value = 0)
+windSlider = slider(bind = changeWind, min = 0, max = 100, value = 0)
 windTextDisplay = wtext(text = 'Wind (km/h) = ')
 windValueDisplay = wtext(text = str(windSlider.value))
 scene.append_to_caption('<div></div>')
@@ -405,7 +406,7 @@ def start(b):
 
 def reset():
     print("\n" * 100)
-    global t, maxAltitude, vix, vfx, vfy, viy, dragResult, dt, buttons, airTemperature, planetRadius, planetMass, flameTemperature, pressureAtSeaLevel, homePlanet, airPressure, dragCoeff, velocity, numberOfMoles, fluidDens, speccAirConst, molarMass, ax, ay, result, materialDens, material, air, running, time, posx, posy, vx, vy, altitude, heightAboveSeaLvl, balloon, speedCurve, altitudeCurve, forceCurve, crossSectArea, fluidVol, sizeOfBalloonMass, payloadMass, balloonMass, mass, wind, vx    
+    global fluidDensPlanet, molarMassPlanet, speccAirConstPlanet, airOfPlanet, relWindVy, relWindVx, windAngle, t, maxAltitude, vix, vfx, vfy, viy, dragResult, dt, buttons, airTemperature, planetRadius, planetMass, flameTemperature, pressureAtSeaLevel, homePlanet, airPressure, dragCoeff, velocity, numberOfMoles, fluidDens, speccAirConst, molarMass, ax, ay, result, materialDens, material, air, running, time, posx, posy, vx, vy, altitude, heightAboveSeaLvl, balloon, speedCurve, altitudeCurve, forceCurve, crossSectArea, fluidVol, sizeOfBalloonMass, payloadMass, balloonMass, mass, wind, vx    
     running = False
     result = False
     dragResult = False
@@ -422,6 +423,12 @@ def reset():
 
     dragCoeff = 0.5
     t = 0
+    windAngle = 0
+
+    airOfPlanet = "Air"
+    molarMassPlanet = 28.965
+    speccAirConstPlanet = 287.058
+    fluidDensPlanet = 1.225
 
     airTemperature = 273.15 #Kelvin at 1 bar
     airPressure = 101325 # Pa
@@ -433,13 +440,15 @@ def reset():
     planetMass = 5.97219 * (10 ** 24)
     planetRadius = 6378 * 10 ** 3
     maxAltitude = 0.02 * planetRadius
-
     
     vx = 0
     vy = 0
     ax = 0
     ay = 0
     velocity = 0
+
+    relWindVx = 0
+    relWindVy = 0
 
     vix = 0
     vfx = 0
@@ -477,7 +486,8 @@ def reset():
 
     dt = 0.01
     dtSlider.value = 0.01 
-    dtCaption.text = "Time Interval: " + str(dt) + " "
+    dtCaption.text = "Time Interval (s) = " + str(dt) + " "
+    windAngleCaption.text = "Wind Angle (°) = " + str(windAngle) + " "
 
     materialMenu.selected = "Nylon"
     airMenu.selected = "Air"
@@ -554,13 +564,22 @@ scene.append_to_caption('<div id="right">')
 scene.append_to_caption('<div style="margin-bottom: 15px;">')
 
 dtSlider = slider(bind = changeDT, min = 0.000000001, max = 0.1, value = 0.01, step = 0.000001)
-dtCaption = wtext(text = 'Time Interval: ' + dt + " ")
+dtCaption = wtext(text = 'Time Interval (s) = ' + dt + " ")
+tempOfFlameSliderText = wtext(text = "                                                              ")
+
+windAngleSlider = slider(bind = changeWindAngle, min = 0, max = 360, value = 0, step = 1)
+windAngleCaption = wtext(text = "Wind Angle (°) = " + windAngle + " ")
 scene.append_to_caption('</div>')
+
+def changeWindAngle():
+    global windAngle
+    windAngle = windAngleSlider.value
+    windAngleCaption.text = "Wind Angle (°) = " + windAngle + " "
 
 def changeDT():
     global dt
     dt = dtSlider.value
-    dtCaption.text = "Time Interval: " + dt + " "
+    dtCaption.text = "Time Interval (s) = " + dt + " "
 
 posx = balloon.pos.x
 posy = balloon.pos.y
@@ -574,7 +593,7 @@ balloon.velocity = 0
 scene.center = vector(balloon.pos.x, balloon.pos.y + 5.2, 0)
 
 while True:
-    global t, airOfPlanet, maxAltitude, vix, viy, vfy, vfi, dt, ay, ax, result, lanetRadius, planetMass, velocity, airPressure, newFluidVol, fluidVol, heightAboveSeaLvl, flameTemperature, fluidDens, dragForce, dragXForce, dragYForce, gravForce, buoForce, totalXForce, totalYForce, ax, ay, viy, vix, vfy, vfx, posxIncr, posyIncr, finalPosX, finalPosY, altitude, vy, vx, posx, posy, time, mass, balloonMass, payloadMass, sizeOfBalloonMass, crossSectArea, crossSectAreaDueToTemp, totalCrossSectionalArea, wind
+    global airOfPlanet, molarMassPlanet, speccAirConstPlanet, relWindVx, relWindVy, windAngle, t, maxAltitude, vix, viy, vfy, vfi, dt, ay, ax, result, lanetRadius, planetMass, velocity, airPressure, newFluidVol, fluidVol, heightAboveSeaLvl, flameTemperature, fluidDens, dragForce, dragXForce, dragYForce, gravForce, buoForce, totalXForce, totalYForce, ax, ay, viy, vix, vfy, vfx, posxIncr, posyIncr, finalPosX, finalPosY, altitude, vy, vx, posx, posy, time, mass, balloonMass, payloadMass, sizeOfBalloonMass, crossSectArea, crossSectAreaDueToTemp, totalCrossSectionalArea, wind
     
     rate(1/(dt))
     if running:      
@@ -610,11 +629,14 @@ while True:
         fluidDensIn = (airPressureIn)/((speccAirConst)*(tempOfFlameSlider.value + 273.15)) #kg/m^3
 
         fluidDensDiff = fluidDensOut - fluidDensIn
+
+        relWindVx = vx - wind * 1000/3600 * cos(radians(windAngle))
+        relWindVy = vy - wind * 1000/3600 * sin(radians(windAngle))
             
-        if velocity > 0:
-            drag_magnitude = 0.5 * fluidDensOut * velocity**2 * dragCoeff * totalCrossSectionalArea
-            dragXForce = -drag_magnitude * (vx / velocity)
-            dragYForce = -drag_magnitude * (vy / velocity)
+        if sqrt(relWindVx**2 + relWindVy**2) > 0:
+            drag_magnitude = 0.5 * fluidDensOut * sqrt(relWindVx**2 + relWindVy**2)**2 * dragCoeff * totalCrossSectionalArea
+            dragXForce = -drag_magnitude * (relWindVx / sqrt(relWindVx**2 + relWindVy**2))
+            dragYForce = -drag_magnitude * (relWindVy / sqrt(relWindVx**2 + relWindVy**2))
         else:
             drag_magnitude = 0
             dragXForce = 0
